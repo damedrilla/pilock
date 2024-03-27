@@ -44,6 +44,23 @@ while True:
         print(str(schedules))
         if not sectionFound:
             print("Invalid section")
-    section = input('Section: ')
-    isStudAllowedtoEnter(section)  
+            
+    def checkUser(id):
+        sectionExists = False
+        userRes = requests.get('http://localhost:322/users/student/' + str(id))
+        parseUser =  json.loads(userRes.text)
+        try:
+            section = parseUser['data'][0]['section']
+        except IndexError:
+            sectionExists = False
+        else:
+            sectionExists = True
+            
+        if sectionExists:
+             isStudAllowedtoEnter(section)
+        else:
+            print("This student doesn't exist. Are you real?")
+             
+    studID = input('ID: ') 
+    checkUser(studID)
     
