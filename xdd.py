@@ -1,3 +1,5 @@
+import RPi.GPIO as GPIO
+from mfrc522 import SimpleMFRC522
 import requests
 import timecheck
 import json
@@ -47,7 +49,7 @@ while True:
             
     def checkUser(id):
         sectionExists = False
-        userRes = requests.get('http://localhost:322/users/student/' + str(id))
+        userRes = requests.get('http://192.168.1.100:322/users/student/' + str(id).replace('(', ''))
         parseUser =  json.loads(userRes.text)
         try:
             section = parseUser['data'][0]['section']
@@ -61,6 +63,14 @@ while True:
         else:
             print("This student doesn't exist. Are you real?")
              
-    studID = input('ID: ') 
-    checkUser(studID)
+    reader = SimpleMFRC522()
+    
+    try:
+        print("Scan your ID card:")
+        cardData = reader.read()
+        cardUID = cardData.split(',')
+        print("ID: " + str(cardUID[0]))
+        checkUser(cardUID[0])
+    finally:
+        GPIO.cleanup()
     
