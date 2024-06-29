@@ -16,10 +16,10 @@ def countItDown():
     if timeRemaining != 0:
       timeRemaining -= 1
       print(str(timeRemaining) + " seconds remaining")
-      time.sleep(0.975)
+      time.sleep(1)
     else:
       print("No time left!")
-      time.sleep(0.975)
+      time.sleep(1)
       continue
     
 def lockState():
@@ -30,19 +30,19 @@ def lockState():
         doorIsLocked = True
         #Send a signal to the relay to lock the thing
         print('State changed to locked')
-        time.sleep(0.975)
+        time.sleep(1)
       else:
         print('Locked')
-        time.sleep(0.975)
+        time.sleep(1)
     else:
       if doorIsLocked != False:
         doorIsLocked = False
         #Send a signal to the relay to lock the thing
         print('State changed to unlocked')
-        time.sleep(0.975)
+        time.sleep(1)
       else:
         print('Unlocked')
-        time.sleep(0.975)
+        time.sleep(1)
 
 def changeLockState(cmd):
   global timeRemaining
