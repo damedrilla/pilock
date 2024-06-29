@@ -10,7 +10,7 @@ def currentSchedule():
     
     if localMode == False:
         currentSchedule = requests.get('http://152.42.167.108/api/schedules/current')
-        return currentSchedule.json()
+        print( currentSchedule.json())
     else:
         schedule_bak = open('schedules.json')
         parseSched = json.load(schedule_bak)
