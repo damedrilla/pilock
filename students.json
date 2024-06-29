@@ -1,11 +1,1 @@
-{
-  "students": [
-    {
-      "id": 1,
-      "student_id": "C21101173",
-      "tag_uid": "0728697309",
-      "name": "Mark Glen Miguel",
-      "section": "BLIS 3A"
-    }
-  ]
-}
+{"students": [{"id": 1, "student_id": "C21101173", "tag_uid": "0728697309", "name": "Mark Glen Miguel", "section": "BLIS 3A"}]}

@@ -7,9 +7,9 @@ import json
 from datetime import datetime
 import socket
 from threading import Thread
+from getCurrentSchedule import currentSchedule
 from rest_endpoint import endpoint
 from lock_state import changeLockState
-from getCurrentSchedule import getCurrentSchedule
 import urllib.request
 import time
 currSched = []

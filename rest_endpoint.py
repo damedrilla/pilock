@@ -10,4 +10,3 @@ def endpoint():
         return json.dumps({"success": True}), 201
 
     api.run(host='0.0.0.0' , port=5000)
-endpoint()

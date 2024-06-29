@@ -1,9 +1,8 @@
-from main import localMode
 import requests
 import json
 from timecheck import isThisTheTime
 from datetime import datetime
-def getCurrentSchedule():
+def currentSchedule():
     # localMode = True
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
