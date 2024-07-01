@@ -90,6 +90,7 @@ def checkUser(id):
 
     try:
         section = parseUser[0]["section"]
+        print('Section:' + section)
     except Exception:
         try:
             instructor_list = requests.get("http://152.42.167.108/api/instructors")
