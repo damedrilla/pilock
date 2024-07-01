@@ -15,7 +15,7 @@ import os
 import coloredlogs, logging
 
 logger = logging.getLogger(__name__)
-coloredlogs.install(level="DEBUG" logger=logger)
+coloredlogs.install(level="DEBUG", logger=logger)
 
 currSched = []
 isFacultyPresent = False
@@ -32,7 +32,7 @@ def isFacultysTimeNow(name):
             isFacultyPresent = True
             changeLockState("unlock")
             if not isFacultyPresentAlreadySet:
-                print(
+                logger.info(
                     "Faculty detected. Students can now scan their ID until "
                     + str(sc["schedule"][0]["time_end"])
                 )
@@ -43,7 +43,7 @@ def isFacultysTimeNow(name):
             elif isFacultyPresentAlreadySet:
                 logger.info("Faculty already present. No scheduling needed.")
     except Exception:
-        print("nah not your time yet fam")
+        logger.warning("nah not your time yet fam")
     return
 
 
@@ -148,10 +148,10 @@ def isInternetUp():
         s.close()
         cloud_status = urllib.request.urlopen("http://152.42.167.108/").getcode()
         if cloud_status == 200:
-            print("Connected to server")
+            logger.info("Connected to server")
             localMode = False
     except Exception:
-        print(
+        logger.critical(
             "No Internet connection or the server is unavailable. Switching to local mode. "
         )
         localMode = True
@@ -177,7 +177,7 @@ def runscheduled():
 def change_inst_state():
     global isFacultyPresent
     global isFacultyPresentAlreadySet
-    print("No faculty mode enabled.")
+    logger.warning("No faculty mode enabled.")
     isFacultyPresent = False
     isFacultyPresentAlreadySet = False
     return __schedule.CancelJob
