@@ -30,9 +30,9 @@ def isFacultysTimeNow(name):
                 + str(sc["schedule"][0]["time_end"])
             )
             isFacultyPresent = True
-            isFacultyPresentAlreadySet = True
             changeLockState("unlock")
             if not isFacultyPresentAlreadySet:
+                isFacultyPresentAlreadySet = True
                 __schedule.every().day.at(
                     str(sc["schedule"][0]["time_end"]), "Asia/Manila"
                 ).do(change_inst_state)
