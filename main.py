@@ -173,10 +173,8 @@ def change_inst_state():
 def main():
     __schedule.every().hour.at(":00").do(backup)
     while True:
-
         reader = SimpleMFRC522()
         try:
-            cardID = input("Scan your card: ")
             print("Scan your ID card:")
             cardData = reader.read_id()
             cardUID = cardData.split(',')
