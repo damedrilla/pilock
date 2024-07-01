@@ -15,11 +15,13 @@ import os
 
 currSched = []
 isFacultyPresent = False
+isFacultyPresentAlreadySet = False
 localMode = False
 
 
 def isFacultysTimeNow(name):
     global isFacultyPresent
+    global isFacultyPresentAlreadySet
     sc = currentSchedule(localMode)
     try:
         if sc["schedule"][0]["instructor"] == name:
@@ -28,10 +30,14 @@ def isFacultysTimeNow(name):
                 + str(sc["schedule"][0]["time_end"])
             )
             isFacultyPresent = True
+            isFacultyPresentAlreadySet = True
             changeLockState("unlock")
-            __schedule.every().day.at(
-                str(sc["schedule"][0]["time_end"]), "Asia/Manila"
-            ).do(change_inst_state)
+            if not isFacultyPresentAlreadySet:
+                __schedule.every().day.at(
+                    str(sc["schedule"][0]["time_end"]), "Asia/Manila"
+                ).do(change_inst_state)
+            elif isFacultyPresentAlreadySet:
+                print("Faculty already present. No scheduling needed.")
     except Exception:
         print("nah not your time yet fam")
     return
@@ -166,8 +172,10 @@ def runscheduled():
 # Revert back to no faculty mode after a schedule has passed.
 def change_inst_state():
     global isFacultyPresent
+    global isFacultyPresentAlreadySet
     print("No faculty mode enabled.")
     isFacultyPresent = False
+    isFacultyPresentAlreadySet = False
     return __schedule.CancelJob
 
 
