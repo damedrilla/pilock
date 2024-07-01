@@ -180,7 +180,6 @@ def main():
             cardUID = cardData.split(',')
             print("ID: " + str(cardUID[0]))
             checkUser(cardUID[0])
-            checkUser(cardID)
         except Exception:
             GPIO.cleanup()
             continue
