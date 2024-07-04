@@ -197,7 +197,7 @@ def main():
             big_endian = bytearray.fromhex(str(minusMfgID))
             big_endian.reverse()
             little_endian = ''.join(f"{n:02X}" for n in big_endian)
-            print("ID: " + str(cardData) + " Little Endian ID: " + little_endian)
+            print("ID: " + str(cardData) + " Little Endian ID: " + str(int(little_endian,16)))
             checkUser(little_endian)
         except Exception:
             GPIO.cleanup()
