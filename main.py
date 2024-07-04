@@ -187,17 +187,17 @@ def change_inst_state():
 def main():
     __schedule.every().hour.at(":00").do(backup)
     while True:
-        reader = SimpleMFRC522()
-        try:
-            print("Scan your ID card:")
-            cardData = reader.read_id_no_block()
-            print("ID: " + str(cardData))
-            checkUser(cardData)
-        except Exception:
-            GPIO.cleanup()
-            continue
-        # uid = input("Input ID")
-        # checkUser(uid)
+        # reader = SimpleMFRC522()
+        # try:
+        #     print("Scan your ID card:")
+        #     cardData = reader.read_id_no_block()
+        #     print("ID: " + str(cardData))
+        #     checkUser(cardData)
+        # except Exception:
+        #     GPIO.cleanup()
+        #     continue
+        uid = input("Input ID")
+        checkUser(uid)
 
 
 
