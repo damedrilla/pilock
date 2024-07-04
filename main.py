@@ -26,7 +26,8 @@ localMode = False
 def isFacultysTimeNow(name):
     global isFacultyPresent
     global isFacultyPresentAlreadySet
-    sc = currentSchedule(localMode)
+    sc = currentSchedule(True)
+    print(sc["schedule"][0]["instructor"])
     try:
         if sc["schedule"][0]["instructor"] == name:
             isFacultyPresent = True
@@ -38,7 +39,7 @@ def isFacultysTimeNow(name):
                 )
                 isFacultyPresentAlreadySet = True
                 __schedule.every().day.at(
-                    str(sc["schedule"][0]["time_end"]), "Asia/Manila"
+                    str(sc["schedule"][0]["time_end"])
                 ).do(change_inst_state)
             elif isFacultyPresentAlreadySet:
                 logger.info("Faculty already present. No scheduling needed.")
@@ -96,7 +97,7 @@ def checkUser(id):
                     parseUser.append(parseStuds["students"][studs])
                     break
     except Exception as e:
-        print(str(e))
+        print('first try error')
 
     try:
         section = parseUser[0]["section"]
@@ -105,13 +106,13 @@ def checkUser(id):
         try:
             instructor_list = requests.get("http://152.42.167.108/api/instructors")
             inst = json.loads(instructor_list.text)
-            print(len(inst["instructors"]))
+            print(inst)
             for instr in range(len(inst["instructors"])):
                 print(inst["instructors"][instr]["tag_uid"])
                 if str(id) == inst["instructors"][instr]["tag_uid"]:
                     isFacultysTimeNow(inst["instructors"][instr]["instructor_name"])
-        except Exception:
-            print("nah")
+        except Exception as e:
+            print('instructor: '+ str(e))
     else:
         sectionExists = True
 
@@ -189,18 +190,16 @@ def main():
         reader = SimpleMFRC522()
         try:
             print("Scan your ID card:")
-            cardData = reader.read_id()
+            cardData = reader.read()
             print("ID: " + str(cardData))
             checkUser(cardData)
         except Exception:
             GPIO.cleanup()
             continue
+        uid = input("Input ID")
+        checkUser(uid)
 
 
-try:
-    os.system("cls")
-except:
-    os.system("clear")
 
 t1 = Thread(target=internetCheck)
 t2 = Thread(target=main)
