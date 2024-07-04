@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-from mfrc522 import SimpleMFRC522
+# from mfrc522 import SimpleMFRC522
 import requests
 import schedule as __schedule
 import json
@@ -26,10 +26,11 @@ localMode = False
 def isFacultysTimeNow(name):
     global isFacultyPresent
     global isFacultyPresentAlreadySet
-    sc = currentSchedule(True)
-    print(sc["schedule"][0]["instructor"])
+    sc = currentSchedule(localMode)
+    print(sc["schedule"])
     try:
-        if sc["schedule"][0]["instructor"] == name:
+        
+        if sc['schedule'][0]["instructor"] == name:
             isFacultyPresent = True
             changeLockState("unlock")
             if not isFacultyPresentAlreadySet:
@@ -103,7 +104,7 @@ def checkUser(id):
         section = parseUser[0]["section"]
         print("Section:" + section)
     except Exception:
-        try:
+        # try:
             instructor_list = requests.get("http://152.42.167.108/api/instructors")
             inst = json.loads(instructor_list.text)
             print(inst)
@@ -111,8 +112,8 @@ def checkUser(id):
                 print(inst["instructors"][instr]["tag_uid"])
                 if str(id) == inst["instructors"][instr]["tag_uid"]:
                     isFacultysTimeNow(inst["instructors"][instr]["instructor_name"])
-        except Exception as e:
-            print('instructor: '+ str(e))
+        # except Exception as e:
+        #     print('instructor: '+ str(e))
     else:
         sectionExists = True
 
