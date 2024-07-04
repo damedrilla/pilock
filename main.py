@@ -196,8 +196,8 @@ def main():
         except Exception:
             GPIO.cleanup()
             continue
-        uid = input("Input ID")
-        checkUser(uid)
+        # uid = input("Input ID")
+        # checkUser(uid)
 
 
 
