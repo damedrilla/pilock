@@ -201,7 +201,7 @@ def main():
             little_endian = ''.join(f"{n:02X}" for n in big_endian)
             print("ID: " + str(cardData) + " Little Endian ID: " + str(int(little_endian,16)))
             checkUser(little_endian)
-        except Exception:
+        except KeyboardInterrupt:
             GPIO.cleanup()
             continue
         # uid = input("Input ID")
