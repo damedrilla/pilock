@@ -85,12 +85,12 @@ def isStudAllowedtoEnter(section, uid):
 
 def checkUser(id):
     global localMode
-    uid = id
+    uid = int(id, 16)
     sectionExists = False
     parseUser = []
     try:
         if localMode == False:
-            print(id)
+            print(uid)
             userRes = requests.get("http://152.42.167.108/api/student/" + str(uid))
             parseUser = json.loads(userRes.text)
             print(parseUser)
@@ -211,7 +211,7 @@ def main():
                 + " Little Endian ID: "
                 + str(int(little_endian, 16))
             )
-            checkUser(little_endian)
+            checkUser(int(little_endian, 16))
         except KeyboardInterrupt:
             GPIO.cleanup()
             continue
