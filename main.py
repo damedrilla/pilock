@@ -85,7 +85,7 @@ def isStudAllowedtoEnter(section, uid):
 
 def checkUser(id):
     global localMode
-    uid = str(id).replace("(", "")
+    uid = id
     sectionExists = False
     parseUser = []
     try:
