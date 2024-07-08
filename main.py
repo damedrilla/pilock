@@ -92,6 +92,7 @@ def checkUser(id):
         try:
             userRes = requests.get("http://152.42.167.108/api/student/" + str(uid))
             parseUser = json.loads(userRes.text)
+            print(parseUser)
         except Exception:
             students_bak = open("students.json")
             parseStuds = json.load(students_bak)
