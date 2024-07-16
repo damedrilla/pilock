@@ -11,7 +11,7 @@ def currentSchedule(conn_status):
     if localMode == False:
         currentSchedule = requests.get('http://152.42.167.108/api/schedules/current')
         sched = currentSchedule.json()
-        schedStrip = str(sched['schedule']).strip('[]')
+        # schedStrip = str(sched['schedule']).strip('[]')
         return json.loads(currentSchedule.text)
     else:
         schedule_bak = open('schedules.json')
