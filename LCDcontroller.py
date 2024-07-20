@@ -25,8 +25,8 @@ def lcdScreenController():
                         current_subject = 'Vacant'
                         
                 c = datetime.now()
-                if current_time != c.strftime("%Y-%m-%d %H:%M"):
-                        current_time = c.strftime("%Y-%m-%d %H:%M")
+                if current_time != c.strftime("%b-%d %I:%M %p"):
+                        current_time = c.strftime("%b-%d %I:%M %p")
                         lcd.clear()
                         timeChanged = True
                 if timeChanged:
