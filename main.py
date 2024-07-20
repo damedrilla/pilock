@@ -10,6 +10,8 @@ from threading import Thread
 from getCurrentSchedule import currentSchedule
 from rest_endpoint import endpoint
 from lock_state import changeLockState
+from getFaculty import getFaculty
+from getStudent import getStudent
 import urllib.request
 import time
 import os
@@ -23,6 +25,22 @@ isFacultyPresent = True
 isFacultyPresentAlreadySet = False
 localMode = False
 internetWarningDone = False
+BASE_API_URL = "https://www.pilocksystem.live/api/"
+guestMode = False
+
+
+def getCurrSched():
+    global currSched
+    global localMode
+    global guestMode
+    currSched = currentSchedule(localMode)
+    try:
+        if currSched["sched_type"] == "Event":
+            guestMode = True
+        else:
+            guestMode = False
+    except Exception:
+        guestMode = False
 
 
 def isFacultysTimeNow(name, uid):
@@ -105,49 +123,27 @@ def isStudAllowedtoEnter(section, uid):
 def checkUser(id):
     global localMode
     uid = int(id, 16)
-    sectionExists = False
     parseUser = []
-    try:
-        if localMode == False:
-            print(uid)
-            userRes = requests.get("http://152.42.167.108/api/student/" + str(uid))
-            parseUser = json.loads(userRes.text)
-            print(parseUser)
-        else:
-            students_bak = open("students.json")
-            parseStuds = json.load(students_bak)
-            for studs in range(len(parseStuds["students"])):
-                if uid == parseStuds["students"][studs]["tag_uid"]:
-                    parseUser.append(parseStuds["students"][studs])
-                    break
-    except Exception as e:
-        print("first try error")
+    isStudent = False
+    isInstructor = False
 
     try:
-        section = parseUser["students"][0]["section"]
-        print("Section:" + section)
+        parseUser = getStudent(True, uid)
+        parseUser["section"]
+        isStudent = True
     except Exception:
         try:
-            instructor_list = requests.get("http://152.42.167.108/api/instructors")
-            inst = json.loads(instructor_list.text)
-            print(inst)
-            for instr in range(len(inst["instructors"])):
-                uuid = inst["instructors"][instr]["tag_uid"]
-                uid_no_lead = int(uuid)
-                print(uid_no_lead)
-                if str(id) == str(uid_no_lead):
-                    isFacultysTimeNow(
-                        inst["instructors"][instr]["instructor_name"], uid_no_lead
-                    )
-        except Exception as e:
-            print("instructor: " + str(e))
-    else:
-        sectionExists = True
+            parseUser = getFaculty(True, uid)
+            parseUser["instructor_name"]
+            isInstructor = True
+        except Exception:
+            print("This student doesn't exist. Are you real?")
 
-    if sectionExists:
-        isStudAllowedtoEnter(section, id)
-    else:
-        print("This student doesn't exist. Are you real?")
+    if isStudent:
+        isStudAllowedtoEnter(parseUser["section"], uid)
+    elif isInstructor:
+        isFacultysTimeNow(parseUser["instructor_name"], parseUser["tag_uid"])
+
 
 
 # For every :00 minute of hour, fetch the latest data from the cloud for backup.
@@ -155,32 +151,46 @@ def backup():
     global localMode
     if localMode == False:
         try:
-            schedres = requests.get("http://152.42.167.108/api/schedules")
+            schedres = requests.get(BASE_API_URL + "schedules")
             with open("schedules.json", "w") as f:
                 json.dump(schedres.json(), f)
+            logger.info("Fetched latest data from schedules for backup.")
         except Exception:
-            logger.critical("Blank response. Schedules data might be empty")
+            logger.critical("Blank response. Schedules data might be empty!")
 
         try:
-            facultyres = requests.get("http://152.42.167.108/api/instructors")
+            facultyres = requests.get(BASE_API_URL + "instructors")
             with open("faculty.json", "w") as f:
                 json.dump(facultyres.json(), f)
+            logger.info("Fetched latest data from instructors for backup.")
         except Exception:
-            logger.critical("Blank response. Faculty data might be empty")
+            logger.critical("Blank response. Faculty data might be empty!")
 
         try:
-            studentres = requests.get("http://152.42.167.108/api/students")
+            studentres = requests.get(BASE_API_URL + "students")
             with open("students.json", "w") as f:
                 json.dump(studentres.json(), f)
+            logger.info("Fetched latest data from students for backup.")
         except Exception:
-            logger.critical("Blank response. Students data might be empty")
+            logger.critical("Blank response. Students data might be empty!")
 
         try:
-            eventres = requests.get("http://152.42.167.108/api/events")
+            eventres = requests.get(BASE_API_URL + "events")
             with open("events.json", "w") as f:
                 json.dump(eventres.json(), f)
+            logger.info("Fetched latest data from events for backup.")
         except Exception:
-            logger.critical("Blank response. Events data might be empty")
+            logger.critical("Blank response. Events data might be empty!")
+
+        try:
+            eventres = requests.get(BASE_API_URL + "makeupscheds")
+            with open("makeupclass.json", "w") as f:
+                json.dump(eventres.json(), f)
+            logger.info("Fetched latest data from make-up schedules for backup.")
+        except Exception:
+            logger.critical(
+                "Blank response. Make-up class schedules data might be empty!"
+            )
     else:
         return
 

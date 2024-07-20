@@ -5,7 +5,7 @@ def getStudent(con_status, uid):
     try:
         if localMode == False:
             print(uid)
-            userRes = requests.get("http://152.42.167.108/api/student/" + str(uid))
+            userRes = requests.get("https://www.pilocksystem.live/api/student/" + str(uid))
             parseUser = json.loads(userRes.text)
             print(parseUser)
         else:
@@ -15,4 +15,4 @@ def getStudent(con_status, uid):
                 if uid == parseStuds["students"][studs]["tag_uid"]:
                     return parseStuds["students"][studs]
     except Exception as e:
-        print("first try error")
+        return{'status': 404}
