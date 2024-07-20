@@ -1,1 +1,1 @@
-{"schedules": [{"id": 1, "subject": "Subject", "instructor": "Mr. Mark Narvadez", "section": "BSIT-5Z", "days": "Thursday", "time_start": "08:34:00", "time_end": "00:34:00"}]}
+{"status": 404, "status_message": "No Schedules Found"}
