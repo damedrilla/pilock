@@ -5,16 +5,24 @@ from threading import Thread
 from getCurrentSchedule import currentSchedule
 from internetCheck import localMode
 
-isAltScreenInfoActive = False
+isUnauthorizedWarningUp = False
+isNoFacWarningUp = False
+shouldGreet = False
+person_to_greet = ""
+
 lcd = CharLCD(i2c_expander="PCF8574", address=0x27, port=1, cols=20, rows=4, dotsize=8)
 
 
 def lcdScreenController(**kwargs):
+    global isUnauthorizedWarningUp 
+    global isNoFacWarningUp 
+    global shouldGreet
+    global person_to_greet
     lcd.clear()
     timeChanged = False
     current_time = datetime.now()
     while True:
-        if not isAltScreenInfoActive:
+        if not isUnauthorizedWarningUp or not isNoFacWarningUp or not shouldGreet:
             sched_data = currentSchedule(localMode)
             current_subject = ""
             current_faculty = ""
@@ -32,7 +40,7 @@ def lcdScreenController(**kwargs):
             if current_time != c.strftime("%b-%d %I:%M %p"):
                 current_time = c.strftime("%b-%d %I:%M %p")
                 timeChanged = True
-            if timeChanged or 'revert' in kwargs:
+            if timeChanged or "revert" in kwargs:
                 lcd.clear()
                 lcd.write_string(current_time)
                 lcd.cursor_pos = (1, 0)
@@ -41,31 +49,36 @@ def lcdScreenController(**kwargs):
                 lcd.write_string(current_faculty)
                 timeChanged = False
             time.sleep(1)
+        elif isUnauthorizedWarningUp:
+                lcd.clear()
+                lcd.write_string("WHO THE FUCK ARE YOU LMAOOOO GET OUT")
+                time.sleep(5)
+                isUnauthorizedWarningUp = False
+        elif isNoFacWarningUp:
+                lcd.clear()
+                lcd.write_string("No faculty yet!")
+                time.sleep(5)
+                isNoFacWarningUp = False
+        elif shouldGreet:
+                lcd.clear()
+                lcd.write_string("Welcome! " + person_to_greet)
+                time.sleep(5)
+                shouldGreet = False
         else:
             time.sleep(1)
 
-
 def showUnauthorized():
-    global isAltScreenInfoActive
-    isAltScreenInfoActive = True
-    lcd.clear()
-    lcd.write_string('WHO THE FUCK ARE YOU LMAOOOO GET OUT')
-    time.sleep(5)
-    isAltScreenInfoActive = False
-    # lcdScreenController(revert='hell yeah')
+    global isUnauthorizedWarningUp
+    isUnauthorizedWarningUp = True
 
 
 def showNoFacultyYet():
-    global isAltScreenInfoActive
-    isAltScreenInfoActive = True
-    print("Warning")
-    time.sleep(5)
-    isAltScreenInfoActive = False
+    global isNoFacWarningUp
+    isNoFacWarningUp = True
 
 
 def greetUser(firstName):
-    global isAltScreenInfoActive
-    isAltScreenInfoActive = True
-    print("Warning")
-    time.sleep(5)
-    isAltScreenInfoActive = False
+    global shouldGreet
+    global person_to_greet
+    shouldGreet = True
+    person_to_greet = firstName
