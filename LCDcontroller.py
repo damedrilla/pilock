@@ -9,7 +9,7 @@ isAltScreenInfoActive = False
 lcd = CharLCD(i2c_expander="PCF8574", address=0x27, port=1, cols=20, rows=4, dotsize=8)
 
 
-def lcdScreenController():
+def lcdScreenController(**kwargs):
     lcd.clear()
     timeChanged = False
     current_time = datetime.now()
@@ -32,7 +32,7 @@ def lcdScreenController():
             if current_time != c.strftime("%b-%d %I:%M %p"):
                 current_time = c.strftime("%b-%d %I:%M %p")
                 timeChanged = True
-            if timeChanged:
+            if timeChanged or 'revert' in kwargs:
                 lcd.clear()
                 lcd.write_string(current_time)
                 lcd.cursor_pos = (1, 0)
@@ -52,6 +52,7 @@ def showUnauthorized():
     lcd.write_string('WHO THE FUCK ARE YOU LMAOOOO GET OUT')
     time.sleep(5)
     isAltScreenInfoActive = False
+    lcdScreenController(revert='hell yeah')
 
 
 def showNoFacultyYet():
