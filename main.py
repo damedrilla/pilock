@@ -18,7 +18,9 @@ from LCDcontroller import (
     showNoFacultyYet,
     greetUser,
 )
+from guestModeTracker import guestMode_QuestionMark
 from internetCheck import internetCheck, localMode
+from facIsPresentTracker import tracker
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="DEBUG", logger=logger)
@@ -29,21 +31,6 @@ isFacultyPresentAlreadySet = False
 localMode = False
 internetWarningDone = False
 BASE_API_URL = "https://www.pilocksystem.live/api/"
-guestMode = False
-
-
-def getCurrSched():
-    global currSched
-    global localMode
-    global guestMode
-    currSched = currentSchedule(localMode)
-    try:
-        if currSched["sched_type"] == "Event":
-            guestMode = True
-        else:
-            guestMode = False
-    except Exception:
-        guestMode = False
 
 
 def isFacultysTimeNow(name, uid):
@@ -156,7 +143,7 @@ def backup():
     if localMode == False:
         try:
             schedres = requests.get(BASE_API_URL + "schedules")
-            with open("schedules.json", "w") as f:
+            with open("backup_data/schedules.json", "w") as f:
                 json.dump(schedres.json(), f)
             logger.info("Fetched latest data from schedules for backup.")
         except Exception:
@@ -164,7 +151,7 @@ def backup():
 
         try:
             facultyres = requests.get(BASE_API_URL + "instructors")
-            with open("faculty.json", "w") as f:
+            with open("backup_data/faculty.json", "w") as f:
                 json.dump(facultyres.json(), f)
             logger.info("Fetched latest data from instructors for backup.")
         except Exception:
@@ -172,7 +159,7 @@ def backup():
 
         try:
             studentres = requests.get(BASE_API_URL + "students")
-            with open("students.json", "w") as f:
+            with open("backup_data/students.json", "w") as f:
                 json.dump(studentres.json(), f)
             logger.info("Fetched latest data from students for backup.")
         except Exception:
@@ -180,7 +167,7 @@ def backup():
 
         try:
             eventres = requests.get(BASE_API_URL + "events")
-            with open("events.json", "w") as f:
+            with open("backup_data/events.json", "w") as f:
                 json.dump(eventres.json(), f)
             logger.info("Fetched latest data from events for backup.")
         except Exception:
@@ -188,13 +175,14 @@ def backup():
 
         try:
             eventres = requests.get(BASE_API_URL + "makeupscheds")
-            with open("makeupclass.json", "w") as f:
+            with open("backup_data/makeupclass.json", "w") as f:
                 json.dump(eventres.json(), f)
             logger.info("Fetched latest data from make-up schedules for backup.")
         except Exception:
             logger.critical(
                 "Blank response. Make-up class schedules data might be empty!"
             )
+        f.close()
     else:
         return
 
@@ -224,36 +212,36 @@ def change_inst_state():
 def main():
     __schedule.every().hour.at(":00").do(backup)
     while True:
-        reader = SimpleMFRC522()
-        try:
-            print("Scan your ID card:")
-            cardData = reader.read_id()
-            cardDataInHex = f"{cardData:x}"
-            minusMfgID = cardDataInHex[:-2]
-            big_endian = bytearray.fromhex(str(minusMfgID))
-            big_endian.reverse()
-            little_endian = "".join(f"{n:02X}" for n in big_endian)
-            print(
-                "ID: "
-                + str(cardData)
-                + " Little Endian ID: "
-                + str(int(little_endian, 16))
-            )
-            checkUser(int(little_endian, 16))
-        except KeyboardInterrupt:
-            GPIO.cleanup()
-            continue
+        # reader = SimpleMFRC522()
+        # try:
+        #     print("Scan your ID card:")
+        #     cardData = reader.read_id()
+        #     cardDataInHex = f"{cardData:x}"
+        #     minusMfgID = cardDataInHex[:-2]
+        #     big_endian = bytearray.fromhex(str(minusMfgID))
+        #     big_endian.reverse()
+        #     little_endian = "".join(f"{n:02X}" for n in big_endian)
+        #     print(
+        #         "ID: "
+        #         + str(cardData)
+        #         + " Little Endian ID: "
+        #         + str(int(little_endian, 16))
+        #     )
+        #     checkUser(int(little_endian, 16))
+        # except KeyboardInterrupt:
+        #     GPIO.cleanup()
+        #     continue
         
         # Uncomment below and comment the try-catch block above
         # if testing in windows PC
         
-        # uid = input("Input ID")
-        # cardDataInHex = f"{int(uid):x}"
-        # minusMfgID = cardDataInHex[:-2]
-        # big_endian = bytearray.fromhex(str(minusMfgID))
-        # big_endian.reverse()
-        # little_endian = "".join(f"{n:02X}" for n in big_endian)
-        # checkUser(little_endian)
+        uid = input("Input ID")
+        cardDataInHex = f"{int(uid):x}"
+        minusMfgID = cardDataInHex[:-2]
+        big_endian = bytearray.fromhex(str(minusMfgID))
+        big_endian.reverse()
+        little_endian = "".join(f"{n:02X}" for n in big_endian)
+        checkUser(little_endian)
 
 
 t1 = Thread(target=internetCheck)
@@ -261,9 +249,13 @@ t2 = Thread(target=main)
 t3 = Thread(target=lcdScreenController)
 t4 = Thread(target=runscheduled)
 t5 = Thread(target=endpoint)
+t6 = Thread(target=guestMode_QuestionMark)
+t7 = Thread(target=tracker)
 
 t1.start()
 t2.start()
 t3.start()
 t4.start()
 t5.start()
+t6.start()
+t7.start()

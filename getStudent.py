@@ -9,7 +9,7 @@ def getStudent(con_status, uid):
             parseUser = json.loads(userRes.text)
             print(parseUser)
         else:
-            students_bak = open("students.json")
+            students_bak = open("backup_data/students.json")
             parseStuds = json.load(students_bak)
             for studs in range(len(parseStuds["students"])):
                 if uid == parseStuds["students"][studs]["tag_uid"]:

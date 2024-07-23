@@ -161,10 +161,12 @@ cython_debug/
 RPi/
 isitjson.py
 getschedtest.py
-events.json
-faculty.json
-makeupclass.json
-schedules.json
-students.json
+# events.json
+# faculty.json
+# makeupclass.json
+# schedules.json
+# students.json
 getschedtest2.py
 RPLCD/
+mfrc522.py
+isitjson.py
