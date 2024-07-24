@@ -15,8 +15,8 @@ lcd = CharLCD(i2c_expander="PCF8574", address=0x27, port=1, cols=20, rows=4, dot
 
 
 def lcdScreenController():
-    global isUnauthorizedWarningUp 
-    global isNoFacWarningUp 
+    global isUnauthorizedWarningUp
+    global isNoFacWarningUp
     global shouldGreet
     global person_to_greet
     global returnToDefaultMsg
@@ -25,7 +25,10 @@ def lcdScreenController():
     current_time = datetime.now()
     while True:
         if not isUnauthorizedWarningUp and not isNoFacWarningUp and not shouldGreet:
-            sched_data = currentSchedule(localMode)
+            try:
+                sched_data = currentSchedule()
+            except Exception:
+                continue
             current_subject = ""
             current_faculty = ""
             try:
@@ -52,28 +55,29 @@ def lcdScreenController():
                 timeChanged = False
             time.sleep(1)
         elif isUnauthorizedWarningUp:
-                returnToDefaultMsg = False
-                lcd.clear()
-                lcd.write_string("WHO THE FUCK ARE YOU LMAOOOO GET OUT")
-                time.sleep(5)
-                isUnauthorizedWarningUp = False
-                returnToDefaultMsg = True
+            returnToDefaultMsg = False
+            lcd.clear()
+            lcd.write_string("WHO THE FUCK ARE YOU LMAOOOO GET OUT")
+            time.sleep(5)
+            isUnauthorizedWarningUp = False
+            returnToDefaultMsg = True
         elif isNoFacWarningUp:
-                returnToDefaultMsg = False
-                lcd.clear()
-                lcd.write_string("No faculty yet!")
-                time.sleep(5)
-                isNoFacWarningUp = False
-                returnToDefaultMsg = True
+            returnToDefaultMsg = False
+            lcd.clear()
+            lcd.write_string("No faculty yet!")
+            time.sleep(5)
+            isNoFacWarningUp = False
+            returnToDefaultMsg = True
         elif shouldGreet:
-                returnToDefaultMsg = False
-                lcd.clear()
-                lcd.write_string("Welcome! " + person_to_greet)
-                time.sleep(5)
-                shouldGreet = False
-                returnToDefaultMsg = True
+            returnToDefaultMsg = False
+            lcd.clear()
+            lcd.write_string("Welcome! " + person_to_greet)
+            time.sleep(5)
+            shouldGreet = False
+            returnToDefaultMsg = True
         else:
             time.sleep(1)
+
 
 def showUnauthorized():
     global isUnauthorizedWarningUp

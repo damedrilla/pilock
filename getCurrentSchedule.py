@@ -3,13 +3,14 @@ import json
 from timecheck import timeCheck
 from datetime import datetime
 import coloredlogs, logging
+from internetCheck import isInternetUp
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="DEBUG", logger=logger)
 
 
-def currentSchedule(conn_status):
-    localMode = conn_status
+def currentSchedule():
+    localMode = isInternetUp()
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     current_weekday = now.strftime("%A")
@@ -21,7 +22,7 @@ def currentSchedule(conn_status):
         sched = json.loads(currentSchedule.text)
         parsed_schedule = []
         try:
-            parsed_schedule = sched['schedule'][0]
+            parsed_schedule = sched["schedule"][0]
         except Exception:
             parsed_schedule = sched
         # schedStrip = str(sched['schedule']).strip('[]')
@@ -48,7 +49,7 @@ def currentSchedule(conn_status):
                 else:
                     continue
         except Exception as e:
-            logger.warn("BACKUP: Nothing in events")
+            pass
 
         try:
             for make_up_sch in range(len(parseMakeup["schedules"])):
@@ -65,7 +66,7 @@ def currentSchedule(conn_status):
                 else:
                     continue
         except Exception as e:
-            logger.warn("BACKUP: Nothing in make-up classes")
+            pass
 
         try:
             for reg_sch in range(len(parseSched["schedules"])):
@@ -82,5 +83,5 @@ def currentSchedule(conn_status):
                 else:
                     continue
         except Exception as e:
-            logger.warn("BACKUP: Nothing in make-up classes")
+            pass
         return {"status": 404}

@@ -13,7 +13,7 @@ def tracker():
         state = open("backup_data/instructor_prescence.json")
         parsed_state = json.load(state)
         try:
-            curr_sched = currentSchedule(localMode)
+            curr_sched = currentSchedule()
             curr_sched_end = curr_sched["time_end"]
             _end = parsed_state["time_end"]
             isCurrentScheduleOver = timeCheck(
@@ -26,10 +26,5 @@ def tracker():
                     f.close()
             time.sleep(1)
         except Exception as e:
-            print(e)
             time.sleep(1)
         state.close()
-        time.sleep(1)
-
-
-
