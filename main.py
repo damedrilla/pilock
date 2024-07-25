@@ -261,13 +261,13 @@ def main():
         # Uncomment below and comment the try-catch block above
         # if testing in windows PC
 
-        uid = input("Input ID")
-        cardDataInHex = f"{int(uid):x}"
-        minusMfgID = cardDataInHex[:-2]
-        big_endian = bytearray.fromhex(str(minusMfgID))
-        big_endian.reverse()
-        little_endian = "".join(f"{n:02X}" for n in big_endian)
-        checkUser(uid)
+        # uid = input("Input ID")
+        # cardDataInHex = f"{int(uid):x}"
+        # minusMfgID = cardDataInHex[:-2]
+        # big_endian = bytearray.fromhex(str(minusMfgID))
+        # big_endian.reverse()
+        # little_endian = "".join(f"{n:02X}" for n in big_endian)
+        # checkUser(uid)
 
 
 # t1 = Thread(target=internetCheck)
