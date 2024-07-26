@@ -98,6 +98,7 @@ def isFacultysTimeNow(name, uid):
             else:
                 logger.info("Faculty already present. No scheduling needed.")
     except Exception:
+        showUnauthorized()
         logger.warning("nah not your time yet fam")
     return
 
