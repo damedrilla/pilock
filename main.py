@@ -116,7 +116,7 @@ def isStudAllowedtoEnter(section, uid, name):
 
     if getFacultyPrescenceState() == 0:
         changeLockState("lock")
-        return print("Instructor not here yet!")
+        showNoFacultyYet
 
     try:
         if curr_sched["section"] == section:
@@ -136,7 +136,7 @@ def isStudAllowedtoEnter(section, uid, name):
         greetUser(name)
     else:
         changeLockState("lock")
-        print("no blyat")
+        showUnauthorized()
 
 
 def checkUser(id):
