@@ -26,10 +26,6 @@ import os
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="DEBUG", logger=logger)
 
-currSched = []
-isFacultyPresent = True
-isFacultyPresentAlreadySet = False
-internetWarningDone = False
 BASE_API_URL = "https://www.pilocksystem.live/api/"
 
 
@@ -100,6 +96,8 @@ def isFacultysTimeNow(name, uid):
                 os.system('/usr/bin/espeak "{}"'.format(speech))
             else:
                 logger.info("Faculty already present. No scheduling needed.")
+                speech = "Welcome! " + name
+                os.system('/usr/bin/espeak "{}"'.format(speech))
     except Exception:
         showUnauthorized()
         logger.warning("Faculty " + name + " tried to enter outside of their schedule!")
@@ -152,9 +150,17 @@ def checkUser(id):
     parseUser = []
     isStudent = False
     isInstructor = False
+    guestMode = guestMode_QuestionMark()
+    if guestMode:
+        speech = "Guest mode is active, no need to scan!"
+        os.system('/usr/bin/espeak "{}"'.format(speech))
+        time.sleep(0.5)
+        return
+    
     if uid == 274065971:
         changeLockState("unlock")
         logger.debug("Master key detected!")
+        time.sleep(0.5)
         return
 
     try:
@@ -287,7 +293,7 @@ t2 = Thread(target=main)
 t3 = Thread(target=lcdScreenController)
 t4 = Thread(target=runscheduled)
 t5 = Thread(target=endpoint)
-t6 = Thread(target=guestMode_QuestionMark)
+# t6 = Thread(target=guestMode_QuestionMark)
 t7 = Thread(target=tracker)
 
 # t1.start()
@@ -295,6 +301,6 @@ t2.start()
 t3.start()
 t4.start()
 t5.start()
-t6.start()
+# t6.start()
 t7.start()
 # print(localMode)

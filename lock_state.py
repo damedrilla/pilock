@@ -2,7 +2,7 @@ import RPi.GPIO as GPIO
 from threading import Thread
 import time
 import coloredlogs, logging
-from guestModeTracker import guestMode
+from guestModeTracker import guestMode_QuestionMark
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="DEBUG", logger=logger)
@@ -43,6 +43,7 @@ def countItDown():
 # Magnet lock is connected though normally closed port in the relay
 def lockState():
     global doorIsLocked
+    guestMode = guestMode_QuestionMark()
     while True:
         if not guestMode:
             if timeRemaining == 0:
