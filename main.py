@@ -17,8 +17,9 @@ from LCDcontroller import (
     showUnauthorized,
     showNoFacultyYet,
     greetUser,
-    showRegisteredButOutsideOfSchedule
+    showRegisteredButOutsideOfSchedule,
 )
+from espeakEventListener import sayUnauthorized, sayGuestMode, speak, welcomeUser
 from guestModeTracker import guestMode_QuestionMark
 from internetCheck import isInternetUp
 from facIsPresentTracker import tracker
@@ -29,7 +30,10 @@ coloredlogs.install(level="DEBUG", logger=logger)
 
 BASE_API_URL = "https://www.pilocksystem.live/api/"
 
-
+# Reminder: Calling change lock state methods should always be the first
+# operation if the user satisfies the authentication algorithms
+# even if the POST request for attendance fails.
+# You don't want them waiting for a while just for the door to open.
 def changeFacultyPrescenceState():
     try:
         data = open("backup_data/instructor_prescence.json")
@@ -76,8 +80,8 @@ def isFacultysTimeNow(name, uid):
         if sc_parsed["instructor"] == name:
             changeLockState("unlock")
             greetUser(name)
-            speech = "Welcome! " + name
-            #os.system('/usr/bin/espeak "{}"'.format(speech))
+            welcomeUser(name)
+            # os.system('/usr/bin/espeak "{}"'.format(speech))
             try:
                 req = requests.post(BASE_API_URL + "attendinst/" + str(uid), timeout=5)
                 logger.info(print(json.loads(req.text)))
@@ -91,21 +95,28 @@ def isFacultysTimeNow(name, uid):
                 changeFacultyPrescenceState()
             else:
                 logger.info("Faculty already present. No scheduling needed.")
-                speech = "Welcome! " + name
-                #os.system('/usr/bin/espeak "{}"'.format(speech))
+                welcomeUser(name)
+                # os.system('/usr/bin/espeak "{}"'.format(speech))
         else:
             changeLockState("lock")
             showRegisteredButOutsideOfSchedule()
-            logger.warning("Faculty " + name + " tried to enter outside of their schedule!")
-            speech = "Access denied!"
-            #os.system('/usr/bin/espeak "{}"'.format(speech))
+            logger.warning(
+                "Faculty " + name + " tried to enter outside of their schedule!"
+            )
+            sayUnauthorized()
+            # os.system('/usr/bin/espeak "{}"'.format(speech))
     except Exception:
         showRegisteredButOutsideOfSchedule()
+        sayUnauthorized()
         logger.warning("Faculty " + name + " tried to enter outside of their schedule!")
     return
 
 
-def isStudAllowedtoEnter(section, uid, name,):
+def isStudAllowedtoEnter(
+    section,
+    uid,
+    name,
+):
     global isFacultyPresent
     sectionFound = False
 
@@ -133,8 +144,7 @@ def isStudAllowedtoEnter(section, uid, name,):
     if sectionFound:
         changeLockState("unlock")
         greetUser(name)
-        speech = "Welcome! " + name
-        #os.system('/usr/bin/espeak "{}"'.format(speech))
+        welcomeUser(name)
         try:
             res = requests.post(BASE_API_URL + "attendstud/" + str(uid))
             print(res.text)
@@ -142,6 +152,7 @@ def isStudAllowedtoEnter(section, uid, name,):
             pass
     else:
         changeLockState("lock")
+        sayUnauthorized()
         logger.warning("Student " + name + " tried to enter outside of their schedule!")
         showRegisteredButOutsideOfSchedule()
 
@@ -154,11 +165,10 @@ def checkUser(id):
     isInstructor = False
     guestMode = guestMode_QuestionMark()
     if guestMode:
-        speech = "Guest mode is active, no need to scan!"
-        #os.system('/usr/bin/espeak "{}"'.format(speech))
+        sayGuestMode()
         time.sleep(0.5)
         return
-    
+
     if uid == 274065971:
         changeLockState("unlock")
         logger.debug("Master key detected!")
@@ -177,8 +187,9 @@ def checkUser(id):
             isInstructor = True
             logger.debug("ID holder is a faculty!")
         except Exception as e:
-            logger.debug("ID holder is not registered!")
             changeLockState("lock")
+            sayUnauthorized()
+            logger.debug("ID holder is not registered!")
             showUnauthorized()
 
     if isStudent:
@@ -290,7 +301,7 @@ def main():
         # checkUser(uid)
 
 
-# t1 = Thread(target=internetCheck)
+t1 = Thread(target=speak)
 t2 = Thread(target=main)
 t3 = Thread(target=lcdScreenController)
 t4 = Thread(target=runscheduled)
@@ -298,7 +309,7 @@ t5 = Thread(target=endpoint)
 # t6 = Thread(target=guestMode_QuestionMark)
 t7 = Thread(target=tracker)
 
-# t1.start()
+t1.start()
 t2.start()
 t3.start()
 t4.start()
