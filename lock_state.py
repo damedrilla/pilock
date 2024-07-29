@@ -43,8 +43,8 @@ def countItDown():
 # Magnet lock is connected though normally closed port in the relay
 def lockState():
     global doorIsLocked
-    guestMode = guestMode_QuestionMark()
     while True:
+        guestMode = guestMode_QuestionMark()
         if not guestMode:
             if timeRemaining == 0:
                 if doorIsLocked != True:
