@@ -14,7 +14,7 @@ timerDoneWarning = True
 # For lock state change detection in lockstate() method (true means door is locked)
 doorIsLocked = True
 
-
+guestMode = False
 # There is no way (or too impractical to do) to interrupt a time.sleep() in Python so this is the workaround.
 # timeRemaining decrements every loop. An iteration lasts a second
 def countItDown():
@@ -38,14 +38,13 @@ def countItDown():
 # Uses the time remaining as condition if the lock is on or off
 # Magnet lock is connected though normally closed port in the relay
 def lockState():
-    GPIO.cleanup()
+    global guestMode
     global doorIsLocked
     # Set them pinouts for relay and the mag lock itself
     GPIO.setmode(GPIO.BCM)
     RELAY_PIN = 4
     GPIO.setup(RELAY_PIN, GPIO.OUT)
     while True:
-        guestMode = guestMode_QuestionMark()
         if not guestMode:
             if timeRemaining == 0:
                 if doorIsLocked != True:
@@ -91,9 +90,17 @@ def changeLockState(cmd):
 def activateGuestMode():
     global keepOpen
     keepOpen = True
+    
+def getGuestModeStatus():
+    global guestMode
+    while True:
+        guestMode = guestMode_QuestionMark()
+        time.sleep(1)
 
 
 t1 = Thread(target=countItDown)
 t2 = Thread(target=lockState)
+t3 = Thread(target=getGuestModeStatus)
 t1.start()
 t2.start()
+t3.start()
