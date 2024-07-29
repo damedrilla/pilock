@@ -82,11 +82,9 @@ def changeLockState(cmd):
     if cmd == "unlock":
         # Set the time remaining to 15 seconds
         timeRemaining = 15
-        return
     if cmd == "lock":
         # Regardless if there's still a time to enter, the countdown immediately reverts back to 0 if an unauthorized person tries to enter.
         timeRemaining = 0
-        return
 
 
 def activateGuestMode():
