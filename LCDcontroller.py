@@ -88,8 +88,10 @@ def lcdScreenController():
             lcd.clear()
             lcd.write_string("You can't enter right now, it's not your time yet!")
             time.sleep(5)
+            reg_user_tryna_enter = False
+            returnToDefaultMsg = True
         else:
-            time.sleep(1)
+            time.sleep(1)   
 
 
 def showUnauthorized():
