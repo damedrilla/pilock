@@ -17,6 +17,7 @@ from LCDcontroller import (
     showUnauthorized,
     showNoFacultyYet,
     greetUser,
+    showRegisteredButOutsideOfSchedule
 )
 from guestModeTracker import guestMode_QuestionMark
 from internetCheck import isInternetUp
@@ -47,21 +48,16 @@ def getFacultyPrescenceState():
     try:
         data = open("backup_data/instructor_prescence.json")
         data_parsed = json.load(data)
+        data.close()
         try:
-            data.close()
             return data_parsed["isInstructorPresent"]
         except Exception:
-            data.close()
             return 0
     except Exception:
-        data.close()
         return 0
 
 
 def isFacultysTimeNow(name, uid):
-    global isFacultyPresent
-    global isFacultyPresentAlreadySet
-
     # Handling JSON on python Aware emojicon
     # Depends on the current localMode value, the currentSchedule method gives different types of data
     # It's either a string or a dictionary (or hash map whatever you wanna call it lole)
@@ -78,9 +74,10 @@ def isFacultysTimeNow(name, uid):
 
     try:
         if sc_parsed["instructor"] == name:
-            isFacultyPresent = True
             changeLockState("unlock")
             greetUser(name)
+            speech = "Welcome! " + name
+            os.system('/usr/bin/espeak "{}"'.format(speech))
             try:
                 req = requests.post(BASE_API_URL + "attendinst/" + str(uid), timeout=5)
                 logger.info(print(json.loads(req.text)))
@@ -92,19 +89,23 @@ def isFacultysTimeNow(name, uid):
                     + str(sc["time_end"])
                 )
                 changeFacultyPrescenceState()
-                speech = "Welcome! " + name
-                os.system('/usr/bin/espeak "{}"'.format(speech))
             else:
                 logger.info("Faculty already present. No scheduling needed.")
                 speech = "Welcome! " + name
                 os.system('/usr/bin/espeak "{}"'.format(speech))
+        else:
+            changeLockState("lock")
+            showRegisteredButOutsideOfSchedule()
+            logger.warning("Faculty " + name + " tried to enter outside of their schedule!")
+            speech = "Access denied!"
+            os.system('/usr/bin/espeak "{}"'.format(speech))
     except Exception:
-        showUnauthorized()
+        showRegisteredButOutsideOfSchedule()
         logger.warning("Faculty " + name + " tried to enter outside of their schedule!")
     return
 
 
-def isStudAllowedtoEnter(section, uid, name):
+def isStudAllowedtoEnter(section, uid, name,):
     global isFacultyPresent
     sectionFound = False
 
@@ -118,7 +119,7 @@ def isStudAllowedtoEnter(section, uid, name):
 
     if getFacultyPrescenceState() == 0:
         changeLockState("lock")
-        showNoFacultyYet()
+        showNoFacultyYet(section)
 
     try:
         if curr_sched["section"] == section:
@@ -129,19 +130,19 @@ def isStudAllowedtoEnter(section, uid, name):
         sectionFound = False
 
     if sectionFound:
+        changeLockState("unlock")
+        greetUser(name)
+        speech = "Welcome! " + name
+        os.system('/usr/bin/espeak "{}"'.format(speech))
         try:
             res = requests.post(BASE_API_URL + "attendstud/" + str(uid))
             print(res.text)
         except Exception:
             pass
-        changeLockState("unlock")
-        greetUser(name)
-        speech = "Welcome! " + name
-        os.system('/usr/bin/espeak "{}"'.format(speech))
     else:
         changeLockState("lock")
         logger.warning("Student " + name + " tried to enter outside of their schedule!")
-        showUnauthorized()
+        showRegisteredButOutsideOfSchedule()
 
 
 def checkUser(id):
