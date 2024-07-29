@@ -268,9 +268,9 @@ def change_inst_state():
 
 def main():
     __schedule.every().hour.at(":00").do(backup)
-    reader = SimpleMFRC522()
     while True:
         try:
+            reader = SimpleMFRC522()
             logger.info('Waiting for an ID...')
             cardData = reader.read_id()
             cardDataInHex = f"{cardData:x}"
