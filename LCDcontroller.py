@@ -10,6 +10,7 @@ isNoFacWarningUp = False
 shouldGreet = False
 reg_user_tryna_enter = False
 returnToDefaultMsg = True
+doesUserExit = False
 section = " "
 person_to_greet = ""
 
@@ -23,6 +24,7 @@ def lcdScreenController():
     global person_to_greet
     global returnToDefaultMsg
     global reg_user_tryna_enter
+    global doesUserExit
     global section
     lcd.clear()
     timeChanged = False
@@ -33,6 +35,7 @@ def lcdScreenController():
             and not isNoFacWarningUp
             and not shouldGreet
             and not reg_user_tryna_enter
+            and not doesUserExit
         ):
             try:
                 sched_data = currentSchedule()
@@ -88,6 +91,13 @@ def lcdScreenController():
             time.sleep(5)
             shouldGreet = False
             returnToDefaultMsg = True
+        elif doesUserExit:
+            returnToDefaultMsg = False
+            lcd.clear()
+            lcd.write_string("Thank you, come again!")
+            time.sleep(5)
+            doesUserExit = False
+            returnToDefaultMsg = True
         elif reg_user_tryna_enter:
             returnToDefaultMsg = False
             lcd.clear()
@@ -102,6 +112,11 @@ def lcdScreenController():
 def showUnauthorized():
     global isUnauthorizedWarningUp
     isUnauthorizedWarningUp = True
+
+
+def userExit():
+    global doesUserExit
+    doesUserExit = True
 
 
 def showRegisteredButOutsideOfSchedule():
