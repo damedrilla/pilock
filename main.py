@@ -107,6 +107,7 @@ def isFacultysTimeNow(name, uid):
             sayUnauthorized()
             # os.system('/usr/bin/espeak "{}"'.format(speech))
     except Exception:
+        changeLockState('lock')
         showRegisteredButOutsideOfSchedule()
         sayUnauthorized()
         logger.warning("Faculty " + name + " tried to enter outside of their schedule!")
