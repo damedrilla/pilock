@@ -26,7 +26,7 @@ from facIsPresentTracker import tracker
 from exitEventListener import exitListener
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='pilock.log', encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(filename='pilock.log', encoding='utf-8', level=logging.INFO)
 coloredlogs.install(level="DEBUG", logger=logger)
 
 BASE_API_URL = "https://www.pilocksystem.live/api/"
@@ -268,10 +268,13 @@ def change_inst_state():
 
 
 def main():
+    #Clear log file on start
+    with open('pilock.log', 'w'):
+        pass
     __schedule.every().hour.at(":00").do(backup)
+    reader = SimpleMFRC522()
     while True:
         try:
-            reader = SimpleMFRC522()
             logger.info('Waiting for an ID...')
             cardData = reader.read_id()
             cardDataInHex = f"{cardData:x}"

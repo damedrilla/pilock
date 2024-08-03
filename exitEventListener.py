@@ -2,7 +2,7 @@ from LCDcontroller import userExit
 import coloredlogs, logging
 from lock_state import changeLockState
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='pilock.log', encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(filename='pilock.log', encoding='utf-8', level=logging.INFO)
 coloredlogs.install(level="DEBUG", logger=logger)
 def exitListener():
     while True:
