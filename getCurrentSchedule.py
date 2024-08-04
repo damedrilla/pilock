@@ -35,19 +35,20 @@ def currentSchedule():
         # schedStrip = str(sched['schedule']).strip('[]')
         return parsed_schedule
     else:
-        schedule_bak = open("backup_data/schedules.json")
-        events_bak = open("backup_data/events.json")
-        make_up_bak = open("backup_data/makeupclass.json")
-
-        parseSched = json.load(schedule_bak)
-        parseEvents = json.load(events_bak)
-        parseMakeup = json.load(make_up_bak)
-
-        # We can close them, since they are in the buffer anyway.
-        schedule_bak.close()
-        events_bak.close()
-        make_up_bak.close()
         try:
+            schedule_bak = open("backup_data/schedules.json")
+            events_bak = open("backup_data/events.json")
+            make_up_bak = open("backup_data/makeupclass.json")
+
+            parseSched = json.load(schedule_bak)
+            parseEvents = json.load(events_bak)
+            parseMakeup = json.load(make_up_bak)
+
+            # We can close them, since they are in the buffer anyway.
+            schedule_bak.close()
+            events_bak.close()
+            make_up_bak.close()
+            
             for events in range(len(parseEvents["events"])):
                 timeStart = parseEvents["events"][events]["event_start"]
                 timeEnd = parseEvents["events"][events]["event_end"]
