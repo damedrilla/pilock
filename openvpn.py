@@ -14,15 +14,16 @@ startConThread = Thread(target=startConnection)
 
 def connectionSwitcher():
     isConnected = False
-    localMode = isInternetUp()
+    while True:
+        localMode = isInternetUp()
 
-    if not localMode and not isConnected:
-        print('Started connecting to OpenVPN server...')
-        startConThread.start()
-        isConnected = True
-    elif isConnected and localMode:
-        #This will kill the thread as well.
-        os.system('sudo killall openvpn')
-        isConnected = False
-    else:
-        time.sleep(1)
+        if not localMode and not isConnected:
+            print('Started connecting to OpenVPN server...')
+            startConThread.start()
+            isConnected = True
+        elif isConnected and localMode:
+            #This will kill the thread as well.
+            os.system('sudo killall openvpn')
+            isConnected = False
+        else:
+            time.sleep(1)
