@@ -22,7 +22,7 @@ def startConnection():
             time.sleep(1)
 
 
-startConThread = Thread(target=startConnection, daemon=True)
+startConThread = Thread(target=startConnection)
 startConThread.start()
 
 
