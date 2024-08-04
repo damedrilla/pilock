@@ -10,9 +10,9 @@ def tracker():
     while True:
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
-        state = open("backup_data/instructor_prescence.json")
-        parsed_state = json.load(state)
         try:
+            state = open("backup_data/instructor_prescence.json")
+            parsed_state = json.load(state)
             curr_sched = currentSchedule()
             curr_sched_end = curr_sched["time_end"]
             _end = parsed_state["time_end"]
