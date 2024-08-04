@@ -119,16 +119,11 @@ def isStudAllowedtoEnter(
     uid,
     name,
 ):
-    global isFacultyPresent
     sectionFound = False
 
     # bouta run out of names yo
     curr_sched = currentSchedule()
     print(curr_sched)
-    now = datetime.now()
-    current_time = now.strftime("%H:%M:%S")
-    current_weekday = now.strftime("%A")
-    print("\nCurrent time and day is: " + current_time + " " + current_weekday)
 
     if getFacultyPrescenceState() == 0:
         changeLockState("lock")
@@ -203,7 +198,6 @@ def checkUser(id):
 def backup():
     localMode = isInternetUp()
     if localMode == False:
-        time.sleep(10)
         try:
             schedres = requests.get(BASE_API_URL + "schedules", timeout=2)
             with open("backup_data/schedules.json", "w") as f:
@@ -251,22 +245,11 @@ def backup():
 
 # Run any pending scheduled task, if there's any.
 def runscheduled():
-    # Run all scheduled task at bootup. (Note: Comment out on prod.)
-    __schedule.run_all()
+    # Run all scheduled task at bootup. (Note: Comment out on production.)
+    # __schedule.run_all()
     while True:
         __schedule.run_pending()
         time.sleep(1)
-
-
-# Revert back to no faculty mode after a schedule has passed.
-def change_inst_state():
-    global isFacultyPresent
-    global isFacultyPresentAlreadySet
-    logger.warning("No faculty mode enabled.")
-    isFacultyPresent = False
-    isFacultyPresentAlreadySet = False
-    return __schedule.CancelJob
-
 
 def main():
     #Clear log file on start
