@@ -20,12 +20,12 @@ def currentSchedule():
     current_weekday = now.strftime("%A")
 
     if localMode == False:
-        currentSchedule = requests.get(
-            "https://www.pilocksystem.live/api/schedules/current"
-        )
-        sched = json.loads(currentSchedule.text)
-        parsed_schedule = []
         try:
+            currentSchedule = requests.get(
+            "https://www.pilocksystem.live/api/schedules/current", timeout=2
+            )
+            sched = json.loads(currentSchedule.text)
+            parsed_schedule = []
             parsed_schedule = sched["schedule"][0]
         except Exception:
             try:
