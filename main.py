@@ -203,9 +203,9 @@ def checkUser(id):
 def backup():
     localMode = isInternetUp()
     if localMode == False:
-        time.sleep(3)
+        time.sleep(10)
         try:
-            schedres = requests.get(BASE_API_URL + "schedules")
+            schedres = requests.get(BASE_API_URL + "schedules", timeout=2)
             with open("backup_data/schedules.json", "w") as f:
                 json.dump(schedres.json(), f)
             logger.info("Fetched latest data from schedules for backup.")
@@ -213,7 +213,7 @@ def backup():
             logger.critical("Blank response. Schedules data might be empty!")
 
         try:
-            facultyres = requests.get(BASE_API_URL + "instructors")
+            facultyres = requests.get(BASE_API_URL + "instructors", timeout=2)
             with open("backup_data/faculty.json", "w") as f:
                 json.dump(facultyres.json(), f)
             logger.info("Fetched latest data from instructors for backup.")
@@ -221,7 +221,7 @@ def backup():
             logger.critical("Blank response. Faculty data might be empty!")
 
         try:
-            studentres = requests.get(BASE_API_URL + "students")
+            studentres = requests.get(BASE_API_URL + "students", timeout=2)
             with open("backup_data/students.json", "w") as f:
                 json.dump(studentres.json(), f)
             logger.info("Fetched latest data from students for backup.")
@@ -229,7 +229,7 @@ def backup():
             logger.critical("Blank response. Students data might be empty!")
 
         try:
-            eventres = requests.get(BASE_API_URL + "events")
+            eventres = requests.get(BASE_API_URL + "events", timeout=2)
             with open("backup_data/events.json", "w") as f:
                 json.dump(eventres.json(), f)
             logger.info("Fetched latest data from events for backup.")
@@ -237,9 +237,9 @@ def backup():
             logger.critical("Blank response. Events data might be empty!")
 
         try:
-            eventres = requests.get(BASE_API_URL + "makeupscheds")
+            makeup_sch = requests.get(BASE_API_URL + "makeupscheds", timeout=2)
             with open("backup_data/makeupclass.json", "w") as f:
-                json.dump(eventres.json(), f)
+                json.dump(makeup_sch.json(), f)
             logger.info("Fetched latest data from make-up schedules for backup.")
         except Exception:
             logger.critical(
