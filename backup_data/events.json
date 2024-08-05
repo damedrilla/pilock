@@ -1,1 +1,1 @@
-{"status": 404, "status_message": "No Events Found"}
+{"events": [{"id": 1, "title": "Special Holiday", "description": "Birthday ni Mayor", "date": "2024-08-12", "event_start": "06:00:00", "event_end": "18:00:00", "isCurrent": 0}]}
