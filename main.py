@@ -25,11 +25,13 @@ from internetCheck import isInternetUp
 from facIsPresentTracker import tracker
 from exitEventListener import exitListener
 from openvpn import connectionSwitcher
+
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='pilock.log', encoding='utf-8', level=logging.INFO)
+logging.basicConfig(filename="pilock.log", encoding="utf-8", level=logging.INFO)
 coloredlogs.install(level="DEBUG", logger=logger)
 
 BASE_API_URL = "https://www.pilocksystem.live/api/"
+
 
 # Reminder: Calling change lock state methods should always be the first
 # operation if the user satisfies the authentication algorithms
@@ -84,7 +86,9 @@ def isFacultysTimeNow(name, uid):
             welcomeUser(name)
             # os.system('/usr/bin/espeak "{}"'.format(speech))
             try:
-                req = requests.post(BASE_API_URL + "attendinst/" + str(uid).zfill(10), timeout=5)
+                req = requests.post(
+                    BASE_API_URL + "attendinst/" + str(uid).zfill(10), timeout=5
+                )
                 logger.info(print(json.loads(req.text)))
             except Exception:
                 pass
@@ -107,7 +111,7 @@ def isFacultysTimeNow(name, uid):
             sayUnauthorized()
             # os.system('/usr/bin/espeak "{}"'.format(speech))
     except Exception:
-        changeLockState('lock')
+        changeLockState("lock")
         showRegisteredButOutsideOfSchedule()
         sayUnauthorized()
         logger.warning("Faculty " + name + " tried to enter outside of their schedule!")
@@ -198,47 +202,98 @@ def checkUser(id):
 def backup():
     localMode = isInternetUp()
     if localMode == False:
-        try:
-            schedres = requests.get(BASE_API_URL + "schedules", timeout=2)
-            with open("backup_data/schedules.json", "w") as f:
-                json.dump(schedres.json(), f)
-            logger.info("Fetched latest data from schedules for backup.")
-        except Exception:
-            logger.critical("Blank response. Schedules data might be empty!")
+        retries = 0
+        sched_bak_is_successful = False
+        faculty_bak_is_successful = False
+        student_bak_is_successful = False
+        event_bak_is_successful = False
+        make_up_bak_is_successful = False
 
-        try:
-            facultyres = requests.get(BASE_API_URL + "instructors", timeout=2)
-            with open("backup_data/faculty.json", "w") as f:
-                json.dump(facultyres.json(), f)
-            logger.info("Fetched latest data from instructors for backup.")
-        except Exception:
-            logger.critical("Blank response. Faculty data might be empty!")
+        while True:
+            if not sched_bak_is_successful:
+                try:
+                    schedres = requests.get(BASE_API_URL + "schedules", timeout=2)
+                    with open("backup_data/schedules.json", "w") as f:
+                        json.dump(schedres.json(), f)
+                    logger.info("Fetched latest data from schedules for backup.")
+                    sched_bak_is_successful = True
+                except Exception:
+                    logger.critical("Blank response. Schedules data might be empty!")
+            elif not faculty_bak_is_successful:
+                try:
+                    facultyres = requests.get(BASE_API_URL + "instructors", timeout=2)
+                    with open("backup_data/faculty.json", "w") as f:
+                        json.dump(facultyres.json(), f)
+                    logger.info("Fetched latest data from instructors for backup.")
+                    faculty_bak_is_successful = True
+                except Exception:
+                    logger.critical("Blank response. Faculty data might be empty!")
+            elif not student_bak_is_successful:
+                try:
+                    studentres = requests.get(BASE_API_URL + "students", timeout=2)
+                    with open("backup_data/students.json", "w") as f:
+                        json.dump(studentres.json(), f)
+                    logger.info("Fetched latest data from students for backup.")
+                    student_bak_is_successful = True
+                except Exception:
+                    logger.critical("Blank response. Students data might be empty!")
+            elif not event_bak_is_successful:
+                try:
+                    eventres = requests.get(BASE_API_URL + "events", timeout=2)
+                    with open("backup_data/events.json", "w") as f:
+                        json.dump(eventres.json(), f)
+                    logger.info("Fetched latest data from events for backup.")
+                    event_bak_is_successful = True
+                except Exception:
+                    logger.critical("Blank response. Events data might be empty!")
+            elif not make_up_bak_is_successful:
+                try:
+                    makeup_sch = requests.get(BASE_API_URL + "makeupscheds", timeout=2)
+                    with open("backup_data/makeupclass.json", "w") as f:
+                        json.dump(makeup_sch.json(), f)
+                    logger.info(
+                        "Fetched latest data from make-up schedules for backup."
+                    )
+                    make_up_bak_is_successful = True
+                except Exception:
+                    logger.critical(
+                        "Blank response. Make-up class schedules data might be empty!"
+                    )
 
-        try:
-            studentres = requests.get(BASE_API_URL + "students", timeout=2)
-            with open("backup_data/students.json", "w") as f:
-                json.dump(studentres.json(), f)
-            logger.info("Fetched latest data from students for backup.")
-        except Exception:
-            logger.critical("Blank response. Students data might be empty!")
-
-        try:
-            eventres = requests.get(BASE_API_URL + "events", timeout=2)
-            with open("backup_data/events.json", "w") as f:
-                json.dump(eventres.json(), f)
-            logger.info("Fetched latest data from events for backup.")
-        except Exception:
-            logger.critical("Blank response. Events data might be empty!")
-
-        try:
-            makeup_sch = requests.get(BASE_API_URL + "makeupscheds", timeout=2)
-            with open("backup_data/makeupclass.json", "w") as f:
-                json.dump(makeup_sch.json(), f)
-            logger.info("Fetched latest data from make-up schedules for backup.")
-        except Exception:
-            logger.critical(
-                "Blank response. Make-up class schedules data might be empty!"
-            )
+            if (
+                sched_bak_is_successful
+                and faculty_bak_is_successful
+                and student_bak_is_successful
+                and event_bak_is_successful
+                and make_up_bak_is_successful
+            ):
+                logger.info("All backup has been completed!")
+                retries = 0
+                sched_bak_is_successful = False
+                faculty_bak_is_successful = False
+                student_bak_is_successful = False
+                event_bak_is_successful = False
+                make_up_bak_is_successful = False
+                break
+            elif retries >= 4:
+                logger.critical(
+                    "Backup failed after exceeded max retries. Please check the Pi-Lock web service endpoints."
+                )
+                retries = 0
+                sched_bak_is_successful = False
+                faculty_bak_is_successful = False
+                student_bak_is_successful = False
+                event_bak_is_successful = False
+                make_up_bak_is_successful = False
+                break
+            else:
+                retries += 1
+                logger.warning(
+                    "Failed to backup one or more tables. Retrying in 5 seconds. (Retry: "
+                    + retries
+                    + " of 4)"
+                )
+                time.sleep(5)
     else:
         return
 
@@ -246,19 +301,24 @@ def backup():
 # Run any pending scheduled task, if there's any.
 def runscheduled():
     # Run all scheduled task at bootup. (Note: Comment out on production.)
-    # __schedule.run_all()
+    __schedule.run_all()
     while True:
         __schedule.run_pending()
         time.sleep(1)
 
+
 def main():
-    #Clear log file on start
-    open('pilock.log', 'w').close()
+    # Clear log file on start
+    try:
+        open("pilock.log", "w").close()
+    except:
+        logger.warning("Failed to clear log files!")
+
     __schedule.every().hour.at(":00").do(backup)
     reader = SimpleMFRC522()
     while True:
         try:
-            logger.info('Waiting for an ID...')
+            logger.info("Waiting for an ID...")
             cardData = reader.read_id()
             cardDataInHex = f"{cardData:x}"
             minusMfgID = cardDataInHex[:-2]
@@ -288,7 +348,8 @@ def main():
         # little_endian = "".join(f"{n:02X}" for n in big_endian)
         # checkUser(uid)
 
-#Threads
+
+# Threads
 main_thread = Thread(target=main)
 tts_thread = Thread(target=speak)
 lcd_thread = Thread(target=lcdScreenController)
