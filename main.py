@@ -84,7 +84,7 @@ def isFacultysTimeNow(name, uid):
             welcomeUser(name)
             # os.system('/usr/bin/espeak "{}"'.format(speech))
             try:
-                req = requests.post(BASE_API_URL + "attendinst/" + str(uid), timeout=5)
+                req = requests.post(BASE_API_URL + "attendinst/" + str(uid).zfill(10), timeout=5)
                 logger.info(print(json.loads(req.text)))
             except Exception:
                 pass
@@ -143,7 +143,7 @@ def isStudAllowedtoEnter(
         greetUser(name)
         welcomeUser(name)
         try:
-            res = requests.post(BASE_API_URL + "attendstud/" + str(uid))
+            res = requests.post(BASE_API_URL + "attendstud/" + str(uid).zfill(10))
             print(res.text)
         except Exception:
             pass
