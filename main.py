@@ -190,7 +190,7 @@ def checkUser(id):
             changeLockState("lock")
             # sayUnauthorized()
             speech = "access denied!"
-            os.system('/usr/bin/espeak "{}"'.format(speech))
+            os.system('espeak "'+speech+'"')
             logger.debug("ID holder is not registered!")
             showUnauthorized()
 
