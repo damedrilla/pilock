@@ -1,6 +1,5 @@
 import os
 import time
-import pyttsx3
 alertUnauthorized = False
 wcUser = False
 alertGuestMode = False
@@ -11,12 +10,11 @@ def speak():
     global wcUser 
     global alertGuestMode 
     global welcomeName 
-    engine = pyttsx3.init()
     while True:
         if alertUnauthorized:
+            os.seteuid(1000)
             speech = "access denied!"
-            engine.say("I will speak this text")
-            engine.runAndWait()
+            os.system('espeak -v en "access denied" --stdout | aplay')
             alertUnauthorized = False
         if wcUser:
             speech = "welcome! " + welcomeName

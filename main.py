@@ -25,8 +25,6 @@ from internetCheck import isInternetUp
 from facIsPresentTracker import tracker
 from exitEventListener import exitListener
 from openvpn import connectionSwitcher
-import os
-os.seteuid(1000)
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="pilock.log", encoding="utf-8", level=logging.INFO)
 coloredlogs.install(level="DEBUG", logger=logger)
@@ -189,9 +187,7 @@ def checkUser(id):
             logger.debug("ID holder is a faculty!")
         except Exception as e:
             changeLockState("lock")
-            # sayUnauthorized() 
-            speech = "access denied!"
-            os.system('espeak -v en "access denied" --stdout | aplay')
+            sayUnauthorized() 
             logger.debug("ID holder is not registered!")
             showUnauthorized()
 
