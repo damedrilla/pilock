@@ -12,15 +12,24 @@ def speak():
     global welcomeName 
     while True:
         if alertUnauthorized:
-            requests.get('http://127.0.0.1:5001/deny')
+            try:
+                requests.get('http://127.0.0.1:5001/deny')
+            except:
+                pass 
             alertUnauthorized = False
         if wcUser:
             speech = "welcome! " + welcomeName
-            requests.get('http://127.0.0.1:5001/welcomeUser/' + welcomeName)
+            try:
+                requests.get('http://127.0.0.1:5001/welcomeUser/' + welcomeName)
+            except:
+                pass
             wcUser = False
         if alertGuestMode:
             speech = "the door is open, no need to tap"
-            requests.get('http://127.0.0.1:5001/guestModeIsOn')
+            try:
+                requests.get('http://127.0.0.1:5001/guestModeIsOn')
+            except:
+                pass
             wcUser = False
         else:
             time.sleep(0.5)
