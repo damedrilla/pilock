@@ -22,6 +22,6 @@ def endpoint():
         speech = "the door is open, no need to tap"
         os.system('/usr/bin/espeak "{}" > /dev/null 2>&1'.format(speech))
         return json.dumps({"notified": True}), 200
-    api.run(host="0.0.0.0", port=5001)
+    api.run(port=5001)
 
 endpoint()
