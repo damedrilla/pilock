@@ -1,4 +1,4 @@
-import os
+import requests
 import time
 alertUnauthorized = False
 wcUser = False
@@ -12,17 +12,15 @@ def speak():
     global welcomeName 
     while True:
         if alertUnauthorized:
-            os.seteuid(1000)
-            speech = "access denied!"
-            os.system('espeak -v en "access denied" --stdout | aplay')
+            requests.get('http://127.0.0.1:5001/deny')
             alertUnauthorized = False
         if wcUser:
             speech = "welcome! " + welcomeName
-            os.system('/usr/bin/espeak "{}" > /dev/null 2>&1'.format(speech))
+            requests.get('http://127.0.0.1:5001/welcomeUser/' + welcomeName)
             wcUser = False
         if alertGuestMode:
             speech = "the door is open, no need to tap"
-            os.system('/usr/bin/espeak "{}" > /dev/null 2>&1'.format(speech))
+            requests.get('http://127.0.0.1:5001/guestModeIsOn')
             wcUser = False
         else:
             time.sleep(0.5)
