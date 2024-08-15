@@ -19,12 +19,13 @@ from LCDcontroller import (
     greetUser,
     showRegisteredButOutsideOfSchedule,
 )
-from espeakEventListener import sayUnauthorized, sayGuestMode, speak, welcomeUser
+from espeakEventListener import sayUnauthorized, sayGuestMode, speak, welcomeUser, chime
 from guestModeTracker import guestMode_QuestionMark
 from internetCheck import isInternetUp
 from facIsPresentTracker import tracker
 from exitEventListener import exitListener
 from openvpn import connectionSwitcher
+
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="pilock.log", encoding="utf-8", level=logging.INFO)
 coloredlogs.install(level="DEBUG", logger=logger)
@@ -187,7 +188,7 @@ def checkUser(id):
             logger.debug("ID holder is a faculty!")
         except Exception as e:
             changeLockState("lock")
-            sayUnauthorized() 
+            sayUnauthorized()
             logger.debug("ID holder is not registered!")
             showUnauthorized()
 
@@ -330,6 +331,7 @@ def main():
                 + " scanned and converted to little endian ID of: "
                 + str(int(little_endian, 16))
             )
+            chime()
             checkUser(int(little_endian, 16))
         except KeyboardInterrupt:
             GPIO.cleanup()
