@@ -1,3 +1,4 @@
+from socket import timeout
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
 import requests
@@ -19,6 +20,7 @@ from LCDcontroller import (
     greetUser,
     showRegisteredButOutsideOfSchedule,
 )
+from backup import backup
 from espeakEventListener import sayUnauthorized, sayGuestMode, speak, welcomeUser, chime
 from guestModeTracker import guestMode_QuestionMark
 from internetCheck import isInternetUp
@@ -198,105 +200,6 @@ def checkUser(id):
         isFacultysTimeNow(parseUser["instructor_name"], uid)
 
 
-# For every :00 minute of hour, fetch the latest data from the cloud for backup.
-def backup():
-    localMode = isInternetUp()
-    if localMode == False:
-        retries = 0
-        sched_bak_is_successful = False
-        faculty_bak_is_successful = False
-        student_bak_is_successful = False
-        event_bak_is_successful = False
-        make_up_bak_is_successful = False
-
-        while True:
-            if not sched_bak_is_successful:
-                try:
-                    schedres = requests.get(BASE_API_URL + "schedules", timeout=2)
-                    with open("backup_data/schedules.json", "w") as f:
-                        json.dump(schedres.json(), f)
-                    logger.info("Fetched latest data from schedules for backup.")
-                    sched_bak_is_successful = True
-                except Exception:
-                    logger.critical("Blank response. Schedules data might be empty!")
-            if not faculty_bak_is_successful:
-                try:
-                    facultyres = requests.get(BASE_API_URL + "instructors", timeout=2)
-                    with open("backup_data/faculty.json", "w") as f:
-                        json.dump(facultyres.json(), f)
-                    logger.info("Fetched latest data from instructors for backup.")
-                    faculty_bak_is_successful = True
-                except Exception:
-                    logger.critical("Blank response. Faculty data might be empty!")
-            if not student_bak_is_successful:
-                try:
-                    studentres = requests.get(BASE_API_URL + "students", timeout=2)
-                    with open("backup_data/students.json", "w") as f:
-                        json.dump(studentres.json(), f)
-                    logger.info("Fetched latest data from students for backup.")
-                    student_bak_is_successful = True
-                except Exception:
-                    logger.critical("Blank response. Students data might be empty!")
-            if not event_bak_is_successful:
-                try:
-                    eventres = requests.get(BASE_API_URL + "events", timeout=2)
-                    with open("backup_data/events.json", "w") as f:
-                        json.dump(eventres.json(), f)
-                    logger.info("Fetched latest data from events for backup.")
-                    event_bak_is_successful = True
-                except Exception:
-                    logger.critical("Blank response. Events data might be empty!")
-            if not make_up_bak_is_successful:
-                try:
-                    makeup_sch = requests.get(BASE_API_URL + "makeupscheds", timeout=2)
-                    with open("backup_data/makeupclass.json", "w") as f:
-                        json.dump(makeup_sch.json(), f)
-                    logger.info(
-                        "Fetched latest data from make-up schedules for backup."
-                    )
-                    make_up_bak_is_successful = True
-                except Exception:
-                    logger.critical(
-                        "Blank response. Make-up class schedules data might be empty!"
-                    )
-
-            if (
-                sched_bak_is_successful
-                and faculty_bak_is_successful
-                and student_bak_is_successful
-                and event_bak_is_successful
-                and make_up_bak_is_successful
-            ):
-                logger.info("All backup has been completed!")
-                retries = 0
-                sched_bak_is_successful = False
-                faculty_bak_is_successful = False
-                student_bak_is_successful = False
-                event_bak_is_successful = False
-                make_up_bak_is_successful = False
-                break
-            elif retries >= 4:
-                logger.critical(
-                    "Backup failed after exceeding max retries. Please check the Pi-Lock web service endpoints."
-                )
-                retries = 0
-                sched_bak_is_successful = False
-                faculty_bak_is_successful = False
-                student_bak_is_successful = False
-                event_bak_is_successful = False
-                make_up_bak_is_successful = False
-                break
-            else:
-                retries += 1
-                logger.warning(
-                    "Failed to backup one or more tables. Retrying in 5 seconds. (Retry: "
-                    + str(retries)
-                    + " of 4)"
-                )
-                time.sleep(5)
-    else:
-        return
-
 
 # Run any pending scheduled task, if there's any.
 def runscheduled():
@@ -317,37 +220,37 @@ def main():
     __schedule.every().hour.at(":00").do(backup)
     reader = SimpleMFRC522()
     while True:
-        try:
-            logger.info("Waiting for an ID...")
-            cardData = reader.read_id()
-            cardDataInHex = f"{cardData:x}"
-            minusMfgID = cardDataInHex[:-2]
-            big_endian = bytearray.fromhex(str(minusMfgID))
-            big_endian.reverse()
-            little_endian = "".join(f"{n:02X}" for n in big_endian)
-            logger.info(
-                "User ID "
-                + str(cardData)
-                + " scanned and converted to little endian ID of: "
-                + str(int(little_endian, 16))
-            )
-            chime()
-            checkUser(int(little_endian, 16))
-        except KeyboardInterrupt:
-            GPIO.cleanup()
-        except:
-            GPIO.cleanup()
+        # try:
+        #     logger.info("Waiting for an ID...")
+        #     cardData = reader.read_id()
+        #     cardDataInHex = f"{cardData:x}"
+        #     minusMfgID = cardDataInHex[:-2]
+        #     big_endian = bytearray.fromhex(str(minusMfgID))
+        #     big_endian.reverse()
+        #     little_endian = "".join(f"{n:02X}" for n in big_endian)
+        #     logger.info(
+        #         "User ID "
+        #         + str(cardData)
+        #         + " scanned and converted to little endian ID of: "
+        #         + str(int(little_endian, 16))
+        #     )
+        #     chime()
+        #     checkUser(int(little_endian, 16))
+        # except KeyboardInterrupt:
+        #     GPIO.cleanup()
+        # except:
+        #     GPIO.cleanup()
 
         # Uncomment below and comment the try-catch block above
         # if testing in windows PC
 
-        # uid = input("Input ID")
-        # cardDataInHex = f"{int(uid):x}"
-        # minusMfgID = cardDataInHex[:-2]
-        # big_endian = bytearray.fromhex(str(minusMfgID))
-        # big_endian.reverse()
-        # little_endian = "".join(f"{n:02X}" for n in big_endian)
-        # checkUser(uid)
+        uid = input("Input ID")
+        cardDataInHex = f"{int(uid):x}"
+        minusMfgID = cardDataInHex[:-2]
+        big_endian = bytearray.fromhex(str(minusMfgID))
+        big_endian.reverse()
+        little_endian = "".join(f"{n:02X}" for n in big_endian)
+        checkUser(uid)
 
 
 # Threads
