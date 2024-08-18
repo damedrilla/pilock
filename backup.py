@@ -138,5 +138,3 @@ def backup():
                 time.sleep(5)
     else:
         return
-
-backup()

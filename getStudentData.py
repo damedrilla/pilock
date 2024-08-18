@@ -7,7 +7,7 @@ from getCourseID import getCourseID
 # internet connection availability, the output must be as similar
 # as the one we see in this system's web API to ensure smooth
 # operation during production use.
-def getStudent(uid):
+def getStudentData(uid):
     localMode = isInternetUp()
     if not localMode:
         # Students registered without an ID card has a value of null in tag_uid key
