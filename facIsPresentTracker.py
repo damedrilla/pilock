@@ -6,6 +6,8 @@ from internetCheck import isInternetUp
 import requests
 import json
 import time
+
+
 def getFacUID(name):
     localMode = isInternetUp()
     if not localMode:
@@ -19,7 +21,7 @@ def getFacUID(name):
                     inst_name = inst["instructors"][instr]["instructor_name"]
                     # print(uid_no_lead)
                     if str(name) == str(inst_name):
-                        return inst["instructors"][instr]['tag_uid']
+                        return inst["instructors"][instr]["tag_uid"]
                 except Exception:
                     continue
         except Exception as e:
@@ -33,11 +35,12 @@ def getFacUID(name):
                     inst_name = inst["instructors"][instr]["instructor_name"]
                     # print(uid_no_lead)
                     if str(name) == str(inst_name):
-                        return inst["instructors"][instr]['tag_uid']
+                        return inst["instructors"][instr]["tag_uid"]
                 except Exception:
                     continue
         except Exception as e:
             return 0
+
 
 def tracker():
     while True:
@@ -47,14 +50,23 @@ def tracker():
             state = open("backup_data/instructor_prescence.json")
             parsed_state = json.load(state)
             curr_sched = currentSchedule()
-            curr_sched_end = curr_sched["time_end"]
+            if curr_sched["code"] == 200:
+                curr_sched_end = curr_sched["time_end"]
+                isCurrentScheduleOver = timeCheck(
+                    "", "", "", time_end=_end, currTime=current_time
+                )
+            else:
+                curr_sched_end = ""
+                isCurrentScheduleOver = True
+
             _end = parsed_state["time_end"]
-            faculty_uid = getFacUID(str(curr_sched['instructor']))
-            isCurrentScheduleOver = timeCheck(
-                "", "", "", time_end=_end, currTime=current_time
-            )
+            faculty_uid = getFacUID(str(curr_sched["instructor"]))
             if isCurrentScheduleOver:
-                data = {"time_end": curr_sched_end, "isInstructorPresent": 0, "uid": faculty_uid}
+                data = {
+                    "time_end": curr_sched_end,
+                    "isInstructorPresent": 0,
+                    "uid": faculty_uid,
+                }
                 with open("backup_data/instructor_prescence.json", "w") as f:
                     json.dump(data, f)
                     f.close()
