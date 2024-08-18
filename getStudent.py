@@ -25,7 +25,7 @@ def getStudent(uid):
                 return 200
             elif students_list.status_code == 401:
                 fac_prescence = open('backup_data/instructor_prescence.json')
-                fp_data = json.loads(fac_prescence)
+                fp_data = json.load(fac_prescence)
                 if fp_data['isInstructorPresent'] == 1:
                     #In case that the instructor becomes present while there's no internet
                     #and the student authenticated after the internet connectivity returns back 
