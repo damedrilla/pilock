@@ -4,6 +4,7 @@ alertUnauthorized = False
 wcUser = False
 alertGuestMode = False
 playChime = False
+absent = False
 welcomeName = ""
 
 def speak():
@@ -12,6 +13,7 @@ def speak():
     global alertGuestMode 
     global welcomeName 
     global playChime
+    global absent
     while True:
         if alertUnauthorized:
             try:
@@ -39,6 +41,12 @@ def speak():
             except:
                 pass
             playChime = False
+        if absent:
+            try:
+                requests.get('http://127.0.0.1:5001/faculty_absent')
+            except:
+                pass
+            absent = False
         else:
             time.sleep(0.5)
 
@@ -60,3 +68,7 @@ def sayGuestMode():
 def chime():
     global playChime
     playChime = True
+    
+def sayAbsent():
+    global absent
+    absent = True
