@@ -1,11 +1,8 @@
-from ast import parse
-from socket import timeout
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
 import requests
 import schedule as __schedule
 import json
-from datetime import datetime
 from threading import Thread
 import time
 import coloredlogs, logging
@@ -32,7 +29,6 @@ from espeakEventListener import (
     sayAbsent,
 )
 from guestModeTracker import guestMode_QuestionMark
-from internetCheck import isInternetUp
 from facIsPresentTracker import tracker
 from exitEventListener import exitListener
 from openvpn import connectionSwitcher
@@ -127,47 +123,6 @@ def isFacultysTimeNow(name, uid):
         sayUnauthorized()
         logger.warning("Faculty " + name + " tried to enter outside of their schedule!")
     return
-
-
-def isStudAllowedtoEnter(
-    section,
-    uid,
-    name,
-):
-    sectionFound = False
-
-    # bouta run out of names yo
-    curr_sched = currentSchedule()
-    print(curr_sched)
-
-    if getFacultyPrescenceState() == 0:
-        changeLockState("lock")
-        showNoFacultyYet(section)
-        return
-
-    try:
-        if curr_sched["section"] == section:
-            sectionFound = True
-        else:
-            sectionFound = False
-    except Exception:
-        sectionFound = False
-
-    if sectionFound:
-        changeLockState("unlock")
-        greetUser(name)
-        welcomeUser(name)
-        try:
-            res = requests.post(BASE_API_URL + "attendstud/" + str(uid).zfill(10))
-            print(res.text)
-        except Exception:
-            pass
-    else:
-        changeLockState("lock")
-        sayUnauthorized()
-        logger.warning("Student " + name + " tried to enter outside of their schedule!")
-        showRegisteredButOutsideOfSchedule()
-
 
 def checkUser(id):
     # Make sure leading zeroes are gone
