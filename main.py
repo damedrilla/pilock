@@ -130,6 +130,7 @@ def checkUser(id):
     parseUser = []
     isStudent = False
     isInstructor = False
+    registered = False
     guestMode = guestMode_QuestionMark()
     if guestMode:
         sayGuestMode()
@@ -147,8 +148,12 @@ def checkUser(id):
         # 401 -> Faculty is absent
         # 403 -> Not enrolled
         # 404 | 500 -> Not registered
-        parseUser = getStudentData(uid)
-        section = parseUser["section"]
+        try:
+            parseUser = getStudentData(uid)
+            section = parseUser["section"]
+            registered = True
+        except:
+            raise Exception("unregistered")
         can_they_enter = getStudent(uid)
         print(can_they_enter)
         if can_they_enter == 200:
@@ -159,7 +164,7 @@ def checkUser(id):
             changeLockState("lock")
             showNoFacultyYet(section)
             sayAbsent()
-        elif can_they_enter == 403:
+        elif registered:
             changeLockState("lock")
             showRegisteredButOutsideOfSchedule()
             sayUnauthorized()
