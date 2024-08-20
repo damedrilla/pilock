@@ -120,6 +120,7 @@ def isStudAllowedtoEnter(section, uid, name,):
     if getFacultyPrescenceState() == 0:
         changeLockState("lock")
         showNoFacultyYet(section)
+        return
 
     try:
         if curr_sched["section"] == section:
@@ -269,7 +270,7 @@ def main():
             logger.info(
                 "User ID "
                 + str(cardData)
-                + " scanned converted to little endian ID of: "
+                + " scanned and converted to little endian ID of: "
                 + str(int(little_endian, 16))
             )
             checkUser(int(little_endian, 16))
