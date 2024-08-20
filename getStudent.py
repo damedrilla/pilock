@@ -1,6 +1,7 @@
 import json
 import requests
 from internetCheck import isInternetUp
+from getCourseID import getCourseID
 
 # The goal of this method is to make sure that regardless of 
 # internet connection availability, the output must be as similar
@@ -13,31 +14,31 @@ def getStudent(uid):
         # and throws an exception if we try to compare it.
         # Try-catch block makes it sure the loop continues in case of a null tag_uid value.
         try:
-            students_list = requests.get("https://www.pilocksystem.live/api/students", timeout= 2)
-            stud_json = json.loads(students_list.text)
-            for index in range(len(stud_json["students"])):
-                try:
-                    uuid = stud_json["students"][index]["tag_uid"]
-                    # remove leading zeroes again askljdbhsdhgasd
-                    uid_no_lead = int(uuid)
-                    if str(uid) == str(uid_no_lead):
-                        return stud_json["students"][index]
-                except Exception:
-                    continue
+            students_list = requests.post("https://www.pilocksystem.live/api/attendstud/" +  str(uid), timeout= 2)
+            if students_list.status_code == 200:
+                return {'status': 200}
+            elif students_list.status_code == 401:
+                return {'status': 401}
+            elif students_list.status_code == 403:
+                return {'status': 403}
+            else:
+                return {'status': 404}
         except Exception as e:
-            return {"status": 404}
+            print(e)
+            return {"status": 500}
     elif localMode:
         try:
-            stud_bak = open("backup_data/students.json")
-            stud_json = json.load(stud_bak)
-            for index in range(len(stud_json["students"])):
-                try:
-                    uuid = stud_json["students"][index]["tag_uid"]
-                    uid_no_lead = int(uuid)
-                    # print(uid_no_lead)
-                    if str(uid) == str(uid_no_lead):
-                        return stud_json["students"][index]
-                except Exception:
-                    continue
+            course_id = getCourseID()
+            enrolled_students = open('backup_data/enrolled_students.json')
+            enrolled_students_bak = json.load(enrolled_students)
+            es_data = enrolled_students_bak['enrolledCourses']
+            
+            for _students in range(len(es_data)):
+                if uid == es_data[_students]['studentTag_uid'] and course_id == es_data[_students]['course_id']:
+                    return {'status': 200}
+                else:
+                    return {'status': 404}
         except Exception as e:
             return {"status": 404}
+
+print(getStudent(8878888))
