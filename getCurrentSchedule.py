@@ -31,7 +31,7 @@ def currentSchedule():
             try:
                 parsed_schedule = sched["event"][0]
             except:
-                parsed_schedule = sched
+                parsed_schedule = {"code": 404}
         # schedStrip = str(sched['schedule']).strip('[]')
         return parsed_schedule
     else:

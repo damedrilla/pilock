@@ -1,1 +1,1 @@
-{"status": 404, "status_message": "No Students Found"}
+{"students": [{"id": 2, "student_id": "C21101133", "tag_uid": null, "name": "Anne Nicole Sombrero", "section": "BSIT 4A", "birthdate": "2002-12-23", "avatar": "https://lh3.googleusercontent.com/a/ACg8ocLrsW2tbidYNXTBHphT9P_ExzIkPKcAmhBYOjOXTeerFDScCINB=s96-c"}, {"id": 3, "student_id": "C21101173", "tag_uid": "0728697309", "name": "Mark Glen Miguel (Mayor)", "section": "BSIT 4A", "birthdate": "2003-07-27", "avatar": "https://lh3.googleusercontent.com/a/ACg8ocLyF4Fgd6K1pdaUPCSc4G-XkbEcNXUt1TM7yB1__JGDDlzM_hN6=s96-c"}]}
