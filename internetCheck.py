@@ -19,7 +19,6 @@ def isInternetUp():
             cloud_status = urllib.request.urlopen("http://152.42.167.108/").getcode()
             if cloud_status == 200:
                 if internetWarningDone == False or localMode == True:
-                    logger.info("Connected to server")
                     internetWarningDone = True
                 return False
     except Exception:
