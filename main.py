@@ -204,7 +204,8 @@ def checkUser(id):
             raise Exception('nah dude')
         isStudent = True
         logger.debug("ID holder is a student!")
-    except Exception:
+    except Exception as e:
+        print(e)
         try:
             parseUser = getFaculty(uid)
             parseUser["instructor_name"]
@@ -243,37 +244,37 @@ def main():
     __schedule.every().hour.at(":00").do(backup)
     reader = SimpleMFRC522()
     while True:
-        try:
-            logger.info("Waiting for an ID...")
-            cardData = reader.read_id()
-            cardDataInHex = f"{cardData:x}"
-            minusMfgID = cardDataInHex[:-2]
-            big_endian = bytearray.fromhex(str(minusMfgID))
-            big_endian.reverse()
-            little_endian = "".join(f"{n:02X}" for n in big_endian)
-            logger.info(
-                "User ID "
-                + str(cardData)
-                + " scanned and converted to little endian ID of: "
-                + str(int(little_endian, 16))
-            )
-            chime()
-            checkUser(int(little_endian, 16))
-        except KeyboardInterrupt:
-            GPIO.cleanup()
-        except:
-            GPIO.cleanup()
+        # try:
+        #     logger.info("Waiting for an ID...")
+        #     cardData = reader.read_id()
+        #     cardDataInHex = f"{cardData:x}"
+        #     minusMfgID = cardDataInHex[:-2]
+        #     big_endian = bytearray.fromhex(str(minusMfgID))
+        #     big_endian.reverse()
+        #     little_endian = "".join(f"{n:02X}" for n in big_endian)
+        #     logger.info(
+        #         "User ID "
+        #         + str(cardData)
+        #         + " scanned and converted to little endian ID of: "
+        #         + str(int(little_endian, 16))
+        #     )
+        #     chime()
+        #     checkUser(int(little_endian, 16))
+        # except KeyboardInterrupt:
+        #     GPIO.cleanup()
+        # except:
+        #     GPIO.cleanup()
 
         # Uncomment below and comment the try-catch block above
         # if testing in windows PC
 
-        # uid = input("Input ID")
-        # cardDataInHex = f"{int(uid):x}"
-        # minusMfgID = cardDataInHex[:-2]
-        # big_endian = bytearray.fromhex(str(minusMfgID))
-        # big_endian.reverse()
-        # little_endian = "".join(f"{n:02X}" for n in big_endian)
-        # checkUser(uid)
+        uid = input("Input ID")
+        cardDataInHex = f"{int(uid):x}"
+        minusMfgID = cardDataInHex[:-2]
+        big_endian = bytearray.fromhex(str(minusMfgID))
+        big_endian.reverse()
+        little_endian = "".join(f"{n:02X}" for n in big_endian)
+        checkUser(uid)
 
 
 # Threads
