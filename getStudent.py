@@ -8,7 +8,6 @@ from internetCheck import isInternetUp
 # operation during production use.
 def getStudent(uid):
     localMode = isInternetUp()
-    print(localMode)
     if not localMode:
         # Students registered without an ID card has a value of null in tag_uid key
         # and returns an exception if we try to compare it.

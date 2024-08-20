@@ -99,7 +99,7 @@ def isFacultysTimeNow(name, uid):
                 logger.info("Faculty already present. No scheduling needed.")
     except Exception:
         showUnauthorized()
-        logger.warning("nah not your time yet fam")
+        logger.warning("Faculty " + name +" tried to enter outside of their schedule!")
     return
 
 
@@ -137,6 +137,7 @@ def isStudAllowedtoEnter(section, uid, name):
         greetUser(name)
     else:
         changeLockState("lock")
+        logger.warning("Student " + name +" tried to enter outside of their schedule!")
         showUnauthorized()
 
 
@@ -151,14 +152,15 @@ def checkUser(id):
         parseUser = getStudent(uid)
         parseUser["section"]
         isStudent = True
+        logger.debug('ID holder is a student!')
     except Exception:
         try:
             parseUser = getFaculty(uid)
-            print(parseUser)
             parseUser["instructor_name"]
             isInstructor = True
+            logger.debug('ID holder is a faculty!')
         except Exception as e:
-            print(e)
+            logger.debug('ID holder is not registered!')
             showUnauthorized()
 
     if isStudent:
@@ -248,10 +250,10 @@ def main():
             big_endian = bytearray.fromhex(str(minusMfgID))
             big_endian.reverse()
             little_endian = "".join(f"{n:02X}" for n in big_endian)
-            print(
-                "ID: "
+            logger.info(
+                "User ID "
                 + str(cardData)
-                + " Little Endian ID: "
+                + " scanned converted to little endian ID of: "
                 + str(int(little_endian, 16))
             )
             checkUser(int(little_endian, 16))
