@@ -179,7 +179,7 @@ def main():
         try:
             cardID = input("Scan your card: ")
             print("Scan your ID card:")
-            cardData = reader.read_id()
+            cardData = reader.read()
             cardUID = cardData.split(',')
             print("ID: " + str(cardUID[0]))
             checkUser(cardUID[0])
