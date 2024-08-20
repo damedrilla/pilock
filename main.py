@@ -219,7 +219,7 @@ def backup():
                     sched_bak_is_successful = True
                 except Exception:
                     logger.critical("Blank response. Schedules data might be empty!")
-            elif not faculty_bak_is_successful:
+            if not faculty_bak_is_successful:
                 try:
                     facultyres = requests.get(BASE_API_URL + "instructors", timeout=2)
                     with open("backup_data/faculty.json", "w") as f:
@@ -228,7 +228,7 @@ def backup():
                     faculty_bak_is_successful = True
                 except Exception:
                     logger.critical("Blank response. Faculty data might be empty!")
-            elif not student_bak_is_successful:
+            if not student_bak_is_successful:
                 try:
                     studentres = requests.get(BASE_API_URL + "students", timeout=2)
                     with open("backup_data/students.json", "w") as f:
@@ -237,7 +237,7 @@ def backup():
                     student_bak_is_successful = True
                 except Exception:
                     logger.critical("Blank response. Students data might be empty!")
-            elif not event_bak_is_successful:
+            if not event_bak_is_successful:
                 try:
                     eventres = requests.get(BASE_API_URL + "events", timeout=2)
                     with open("backup_data/events.json", "w") as f:
@@ -246,7 +246,7 @@ def backup():
                     event_bak_is_successful = True
                 except Exception:
                     logger.critical("Blank response. Events data might be empty!")
-            elif not make_up_bak_is_successful:
+            if not make_up_bak_is_successful:
                 try:
                     makeup_sch = requests.get(BASE_API_URL + "makeupscheds", timeout=2)
                     with open("backup_data/makeupclass.json", "w") as f:
@@ -277,7 +277,7 @@ def backup():
                 break
             elif retries >= 4:
                 logger.critical(
-                    "Backup failed after exceeded max retries. Please check the Pi-Lock web service endpoints."
+                    "Backup failed after exceeding max retries. Please check the Pi-Lock web service endpoints."
                 )
                 retries = 0
                 sched_bak_is_successful = False
