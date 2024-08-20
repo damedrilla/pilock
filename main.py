@@ -177,9 +177,8 @@ def main():
         try:
             print("Scan your ID card:")
             cardData = reader.read_id()
-            cardUID = cardData.split(',')
-            print("ID: " + str(cardUID[0]))
-            checkUser(cardUID[0])
+            print("ID: " + str(cardData))
+            checkUser(cardData)
         except Exception:
             GPIO.cleanup()
             continue
