@@ -23,7 +23,7 @@ isFacultyPresentAlreadySet = False
 localMode = False
 
 
-def isFacultysTimeNow(name):
+def isFacultysTimeNow(name, uid):
     global isFacultyPresent
     global isFacultyPresentAlreadySet
     sc = currentSchedule(localMode)
@@ -33,6 +33,7 @@ def isFacultysTimeNow(name):
         if sc['schedule'][0]["instructor"] == name:
             isFacultyPresent = True
             changeLockState("unlock")
+            requests.post('http://152.42.167.108/api/attend/' + str(uid))
             if not isFacultyPresentAlreadySet:
                 logger.info(
                     "Faculty detected. Students can now scan their ID until "
@@ -111,7 +112,7 @@ def checkUser(id):
             for instr in range(len(inst["instructors"])):
                 print(inst["instructors"][instr]["tag_uid"])
                 if str(id) == inst["instructors"][instr]["tag_uid"]:
-                    isFacultysTimeNow(inst["instructors"][instr]["instructor_name"])
+                    isFacultysTimeNow(inst["instructors"][instr]["instructor_name"], inst["instructors"][instr]["tag_uid"])
         except Exception as e:
             print('instructor: '+ str(e))
     else:
