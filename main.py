@@ -118,7 +118,7 @@ def isStudAllowedtoEnter(section, uid, name):
 
     if getFacultyPrescenceState() == 0:
         changeLockState("lock")
-        showNoFacultyYet
+        showNoFacultyYet()
 
     try:
         if curr_sched["section"] == section:
