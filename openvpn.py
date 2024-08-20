@@ -11,7 +11,7 @@ def startConnection():
         if connect_to_vpn:
             time.sleep(3)
             cmd = (
-                "cd /etc/openvpn && sudo openvpn pilock-hardware.ovpn > /dev/null 2>&1"
+                "cd /etc/openvpn && sudo openvpn pilock-hardware.ovpn"
             )
             returned_value = os.system(cmd)
             print(
