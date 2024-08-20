@@ -10,7 +10,9 @@ def currentSchedule(conn_status):
 
     if localMode == False:
         currentSchedule = requests.get('http://152.42.167.108/api/schedules/current')
-        return currentSchedule.json()
+        sched = currentSchedule.json()
+        schedStrip = str(sched['schedule']).strip('[]')
+        return json.loads(currentSchedule.text)
     else:
         schedule_bak = open('schedules.json')
         parseSched = json.load(schedule_bak)
@@ -19,9 +21,10 @@ def currentSchedule(conn_status):
             timeEnd = parseSched['schedules'][sch]['time_end']
             isCorrectSchedule = isThisTheTime(timeStart, timeEnd, current_time)
             if isCorrectSchedule == True and current_weekday == parseSched['schedules'][sch]['days']:
-                right_schedule = '{\'schedule\': [' + str(parseSched['schedules'][sch]) + ']}'
+                right_schedule = parseSched['schedules'][sch]
                 return json.dumps(right_schedule)
             else:
                 continue
         else:
             return json.dumps({'status': 404})
+        
