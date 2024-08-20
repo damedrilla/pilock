@@ -28,7 +28,12 @@ def lcdScreenController():
     timeChanged = False
     current_time = datetime.now()
     while True:
-        if not isUnauthorizedWarningUp and not isNoFacWarningUp and not shouldGreet:
+        if (
+            not isUnauthorizedWarningUp
+            and not isNoFacWarningUp
+            and not shouldGreet
+            and not reg_user_tryna_enter
+        ):
             try:
                 sched_data = currentSchedule()
             except Exception:
@@ -72,7 +77,7 @@ def lcdScreenController():
         elif isNoFacWarningUp:
             returnToDefaultMsg = False
             lcd.clear()
-            lcd.write_string(section +"'s faculty isn't here yet!")
+            lcd.write_string(section + "'s faculty isn't here yet!")
             time.sleep(5)
             isNoFacWarningUp = False
             returnToDefaultMsg = True
@@ -91,7 +96,7 @@ def lcdScreenController():
             reg_user_tryna_enter = False
             returnToDefaultMsg = True
         else:
-            time.sleep(1)   
+            time.sleep(1)
 
 
 def showUnauthorized():
