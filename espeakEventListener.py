@@ -30,7 +30,7 @@ def speak():
                 requests.get('http://127.0.0.1:5001/guestModeIsOn')
             except:
                 pass
-            wcUser = False
+            alertGuestMode = False
         else:
             time.sleep(0.5)
 
