@@ -12,7 +12,6 @@ def isInternetUp():
     global localMode
     global internetWarningDone
     try:    
-            socket.setdefaulttimeout(2)
             host = socket.gethostbyname("1.1.1.1")
             s = socket.create_connection((host, 80))
             s.close()
