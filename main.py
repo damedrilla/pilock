@@ -12,12 +12,12 @@ from rest_endpoint import endpoint
 from lock_state import changeLockState
 from getFaculty import getFaculty
 from getStudent import getStudent
-# from LCDcontroller import (
-#     lcdScreenController,
-#     showUnauthorized,
-#     showNoFacultyYet,
-#     greetUser,
-# )
+from LCDcontroller import (
+    lcdScreenController,
+    showUnauthorized,
+    showNoFacultyYet,
+    greetUser,
+)
 from internetCheck import internetCheck, localMode
 
 logger = logging.getLogger(__name__)
@@ -125,7 +125,7 @@ def isStudAllowedtoEnter(section, uid):
 
 def checkUser(id):
     global localMode
-    uid = int(id, 16)
+    uid = int(str(id), 16)
     parseUser = []
     isStudent = False
     isInstructor = False
@@ -140,8 +140,8 @@ def checkUser(id):
             parseUser["instructor_name"]
             isInstructor = True
         except Exception:
-            print('unauthenticated')
-            # showUnauthorized()
+            # print('unauthenticated')
+            showUnauthorized()
 
     if isStudent:
         isStudAllowedtoEnter(parseUser["section"], uid)
@@ -253,12 +253,12 @@ def main():
 
 t1 = Thread(target=internetCheck)
 t2 = Thread(target=main)
-# t3 = Thread(target=lcdScreenController)
+t3 = Thread(target=lcdScreenController)
 t4 = Thread(target=runscheduled)
 t5 = Thread(target=endpoint)
 
 t1.start()
 t2.start()
-# t3.start()
+t3.start()
 t4.start()
 t5.start()
