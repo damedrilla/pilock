@@ -50,7 +50,7 @@ def isFacultysTimeNow(name, uid):
     return
 
 
-def isStudAllowedtoEnter(section):
+def isStudAllowedtoEnter(section, uid):
     global isFacultyPresent
     sectionFound = False
 
@@ -75,6 +75,7 @@ def isStudAllowedtoEnter(section):
         sectionFound = False
 
     if sectionFound:
+        requests.post("http://152.42.167.108/api/attend/" + str(uid))
         changeLockState("unlock")
         print("get in homie")
     else:
@@ -123,7 +124,7 @@ def checkUser(id):
         sectionExists = True
 
     if sectionExists:
-        isStudAllowedtoEnter(section)
+        isStudAllowedtoEnter(section, id)
     else:
         print("This student doesn't exist. Are you real?")
 
