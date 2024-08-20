@@ -54,7 +54,7 @@ def isStudAllowedtoEnter(section):
         return print("Instructor not here yet!")
     
     try:
-        if curr_sched[0]["section"] == section:
+        if curr_sched['schedule'][0]["section"] == section:
             sectionFound = True
         else:
             sectionFound = False

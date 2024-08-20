@@ -19,7 +19,7 @@ def currentSchedule(conn_status):
             timeEnd = parseSched['schedules'][sch]['time_end']
             isCorrectSchedule = isThisTheTime(timeStart, timeEnd, current_time)
             if isCorrectSchedule == True and current_weekday == parseSched['schedules'][sch]['days']:
-                right_schedule = parseSched['schedules'][sch]
+                right_schedule = '{\'schedule\': [' + str(parseSched['schedules'][sch]) + ']}'
                 return json.dumps(right_schedule)
             else:
                 continue
