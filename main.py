@@ -21,6 +21,7 @@ from LCDcontroller import (
 from guestModeTracker import guestMode_QuestionMark
 from internetCheck import isInternetUp
 from facIsPresentTracker import tracker
+import subprocess
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="DEBUG", logger=logger)
@@ -95,6 +96,12 @@ def isFacultysTimeNow(name, uid):
                     + str(sc["time_end"])
                 )
                 changeFacultyPrescenceState()
+                speech = "Welcome! " + name
+                subprocess.call(
+                    ["espeak", speech],
+                    stdout=subprocess.DEVNULL,
+                    stderr=subprocess.STDOUT,
+                )
             else:
                 logger.info("Faculty already present. No scheduling needed.")
     except Exception:
@@ -135,6 +142,12 @@ def isStudAllowedtoEnter(section, uid, name):
             pass
         changeLockState("unlock")
         greetUser(name)
+        speech = "Welcome! " + name
+        subprocess.call(
+            ["espeak", speech],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.STDOUT,
+        )
     else:
         changeLockState("lock")
         logger.warning("Student " + name + " tried to enter outside of their schedule!")
