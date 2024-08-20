@@ -13,15 +13,15 @@ def speak():
     while True:
         if alertUnauthorized:
             speech = "access denied!"
-            os.system('/usr/bin/espeak "{}"'.format(speech))
+            os.system('/usr/bin/espeak "{}" > /dev/null 2>&1'.format(speech))
             alertUnauthorized = False
         elif wcUser:
             speech = "welcome! " + welcomeName
-            os.system('/usr/bin/espeak "{}"'.format(speech))
+            os.system('/usr/bin/espeak "{}" > /dev/null 2>&1'.format(speech))
             wcUser = False
         elif alertGuestMode:
             speech = "the door is open, no need to tap"
-            os.system('/usr/bin/espeak "{}"'.format(speech))
+            os.system('/usr/bin/espeak "{}" > /dev/null 2>&1'.format(speech))
             wcUser = False
         else:
             time.sleep(0.5)
