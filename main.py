@@ -77,7 +77,7 @@ def isFacultysTimeNow(name, uid):
             changeLockState("unlock")
             greetUser(name)
             speech = "Welcome! " + name
-            os.system('/usr/bin/espeak "{}"'.format(speech))
+            #os.system('/usr/bin/espeak "{}"'.format(speech))
             try:
                 req = requests.post(BASE_API_URL + "attendinst/" + str(uid), timeout=5)
                 logger.info(print(json.loads(req.text)))
@@ -92,13 +92,13 @@ def isFacultysTimeNow(name, uid):
             else:
                 logger.info("Faculty already present. No scheduling needed.")
                 speech = "Welcome! " + name
-                os.system('/usr/bin/espeak "{}"'.format(speech))
+                #os.system('/usr/bin/espeak "{}"'.format(speech))
         else:
             changeLockState("lock")
             showRegisteredButOutsideOfSchedule()
             logger.warning("Faculty " + name + " tried to enter outside of their schedule!")
             speech = "Access denied!"
-            os.system('/usr/bin/espeak "{}"'.format(speech))
+            #os.system('/usr/bin/espeak "{}"'.format(speech))
     except Exception:
         showRegisteredButOutsideOfSchedule()
         logger.warning("Faculty " + name + " tried to enter outside of their schedule!")
@@ -134,7 +134,7 @@ def isStudAllowedtoEnter(section, uid, name,):
         changeLockState("unlock")
         greetUser(name)
         speech = "Welcome! " + name
-        os.system('/usr/bin/espeak "{}"'.format(speech))
+        #os.system('/usr/bin/espeak "{}"'.format(speech))
         try:
             res = requests.post(BASE_API_URL + "attendstud/" + str(uid))
             print(res.text)
@@ -155,7 +155,7 @@ def checkUser(id):
     guestMode = guestMode_QuestionMark()
     if guestMode:
         speech = "Guest mode is active, no need to scan!"
-        os.system('/usr/bin/espeak "{}"'.format(speech))
+        #os.system('/usr/bin/espeak "{}"'.format(speech))
         time.sleep(0.5)
         return
     
