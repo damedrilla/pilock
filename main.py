@@ -290,7 +290,7 @@ def backup():
                 retries += 1
                 logger.warning(
                     "Failed to backup one or more tables. Retrying in 5 seconds. (Retry: "
-                    + retries
+                    + str(retries)
                     + " of 4)"
                 )
                 time.sleep(5)
