@@ -52,7 +52,7 @@ def lockState():
                     doorIsLocked = True
                     # Send a signal to the relay to lock the thing
                     logger.info("State changed to locked")
-                    GPIO.output(RELAY_PIN, GPIO.LOW)
+                    GPIO.output(RELAY_PIN, GPIO.HIGH)
                     time.sleep(1)
                 else:
                     # If the state is the same anyway, just let it through
@@ -62,7 +62,7 @@ def lockState():
                 if doorIsLocked != False:
                     doorIsLocked = False
                     # Turn on the relay to cut power to the maglock (unlock)
-                    GPIO.output(RELAY_PIN, GPIO.HIGH)
+                    GPIO.output(RELAY_PIN, GPIO.LOW)
                     logger.info("State changed to unlocked")
                     time.sleep(1)
                 else:
@@ -70,7 +70,7 @@ def lockState():
         elif guestMode:
             if doorIsLocked != False:
                 doorIsLocked = False
-                GPIO.output(RELAY_PIN, GPIO.HIGH)
+                GPIO.output(RELAY_PIN, GPIO.LOW)
                 logger.info("State changed to unlocked")
                 time.sleep(1)
             else:
