@@ -49,18 +49,19 @@ def tracker():
         try:
             state = open("backup_data/instructor_prescence.json")
             parsed_state = json.load(state)
+            _end = parsed_state["time_end"]
             curr_sched = currentSchedule()
             if curr_sched["code"] == 200:
                 curr_sched_end = curr_sched["time_end"]
+                faculty_uid = getFacUID(str(curr_sched["instructor"]))
                 isCurrentScheduleOver = timeCheck(
                     "", "", "", time_end=_end, currTime=current_time
                 )
             else:
                 curr_sched_end = ""
                 isCurrentScheduleOver = True
+                faculty_uid = 0
 
-            _end = parsed_state["time_end"]
-            faculty_uid = getFacUID(str(curr_sched["instructor"]))
             if isCurrentScheduleOver:
                 data = {
                     "time_end": curr_sched_end,
@@ -73,4 +74,6 @@ def tracker():
             time.sleep(1)
             state.close()
         except Exception as e:
+            print(e)
             time.sleep(1)
+tracker()
