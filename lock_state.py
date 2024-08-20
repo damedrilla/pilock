@@ -41,7 +41,7 @@ def lockState():
     global doorIsLocked
     # Set them pinouts for relay and the mag lock itself
     GPIO.setmode(GPIO.BCM)
-    RELAY_PIN = 4
+    RELAY_PIN = 17
     GPIO.setup(RELAY_PIN, GPIO.OUT)
     while True:
         guestMode = guestMode_QuestionMark()
