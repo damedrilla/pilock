@@ -190,7 +190,7 @@ def checkUser(id):
             changeLockState("lock")
             # sayUnauthorized() 
             speech = "access denied!"
-            os.system('espeak -v en "'+speech+'" --stdout | aplay')
+            os.system('espeak -v en "access denied" --stdout | aplay')
             logger.debug("ID holder is not registered!")
             showUnauthorized()
 
