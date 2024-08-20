@@ -1,10 +1,10 @@
 from getCurrentSchedule import currentSchedule
-from internetCheck import localMode
+from internetCheck import internetCheck
 guestMode = False
 
 def guestMode_QuestionMark():
     global guestMode
-    currSched = currentSchedule(localMode)
+    currSched = currentSchedule()
     try:
         if currSched["sched_type"] == "Event":
             guestMode = True

@@ -19,7 +19,7 @@ from LCDcontroller import (
     greetUser,
 )
 from guestModeTracker import guestMode_QuestionMark
-from internetCheck import internetCheck, localMode
+from internetCheck import isInternetUp
 from facIsPresentTracker import tracker
 
 logger = logging.getLogger(__name__)
@@ -28,9 +28,37 @@ coloredlogs.install(level="DEBUG", logger=logger)
 currSched = []
 isFacultyPresent = True
 isFacultyPresentAlreadySet = False
-localMode = False
 internetWarningDone = False
 BASE_API_URL = "https://www.pilocksystem.live/api/"
+
+
+def changeFacultyPrescenceState():
+    try:
+        data = open("backup_data/instructor_prescence.json")
+        data_parsed = json.load(data)
+        data_parsed["isInstructorPresent"] = 1
+        data.close()
+        with open("backup_data/instructor_prescence.json", "w") as f:
+            json.dump(data_parsed, f)
+            f.close()
+    except Exception as e:
+        print(e)
+        logger.critical("Error updating!")
+
+
+def getFacultyPrescenceState():
+    try:
+        data = open("backup_data/instructor_prescence.json")
+        data_parsed = json.load(data)
+        try:
+            data.close()
+            return data_parsed["isInstructorPresent"]
+        except Exception:
+            data.close()
+            return 0
+    except Exception:
+        data.close()
+        return 0
 
 
 def isFacultysTimeNow(name, uid):
@@ -42,34 +70,31 @@ def isFacultysTimeNow(name, uid):
     # It's either a string or a dictionary (or hash map whatever you wanna call it lole)
     # These try-catch (abominations) blocks below handles the JSON data that
     # the method gives to make it sure that the value we pass is always a JSON encoded data.
-    sc = currentSchedule(localMode)
+    sc = currentSchedule()
     sc_parsed = []
     try:
-        try:
-            # No schedule found
-            sc_parsed = sc["status"]
-        except KeyError:
-            # Schedule from web API
-            sc_parsed = sc["schedule"][0]
-    except Exception:
-        # Offline backup
+        # No schedule found
+        sc_parsed = sc["status"]
+    except KeyError:
+        # Schedule from web API or backup
         sc_parsed = sc
 
     try:
         if sc_parsed["instructor"] == name:
             isFacultyPresent = True
             changeLockState("unlock")
-            requests.post("http://152.42.167.108/api/attend/" + str(uid))
-            if not isFacultyPresentAlreadySet:
+            try:
+                req = requests.post(BASE_API_URL + "attendinst/" + str(uid), timeout=5)
+                logger.info(print(json.loads(req.text)))
+            except Exception:
+                pass
+            if getFacultyPrescenceState() == 0:
                 logger.info(
                     "Faculty detected. Students can now scan their ID until "
-                    + str(sc["schedule"][0]["time_end"])
+                    + str(sc["time_end"])
                 )
-                isFacultyPresentAlreadySet = True
-                __schedule.every().day.at(str(sc["schedule"][0]["time_end"])).do(
-                    change_inst_state
-                )
-            elif isFacultyPresentAlreadySet:
+                changeFacultyPrescenceState()
+            else:
                 logger.info("Faculty already present. No scheduling needed.")
     except Exception:
         logger.warning("nah not your time yet fam")
@@ -81,14 +106,14 @@ def isStudAllowedtoEnter(section, uid):
     sectionFound = False
 
     # bouta run out of names yo
-    curr_sched = currentSchedule(localMode)
+    curr_sched = currentSchedule()
     print(curr_sched)
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     current_weekday = now.strftime("%A")
     print("\nCurrent time and day is: " + current_time + " " + current_weekday)
 
-    if not isFacultyPresent:
+    if getFacultyPrescenceState() == 0:
         changeLockState("lock")
         return print("Instructor not here yet!")
 
@@ -111,35 +136,35 @@ def isStudAllowedtoEnter(section, uid):
 
 
 def checkUser(id):
-    global localMode
-    #Make sure leading zeroes are gone
+    # Make sure leading zeroes are gone
     uid = int(id)
     parseUser = []
     isStudent = False
     isInstructor = False
 
     try:
-        parseUser = getStudent(localMode, uid)
+        parseUser = getStudent(uid)
         parseUser["section"]
         isStudent = True
     except Exception:
         try:
-            parseUser = getFaculty(localMode, uid)
+            parseUser = getFaculty(uid)
+            print(parseUser)
             parseUser["instructor_name"]
             isInstructor = True
-        except Exception:
-            # print('unauthenticated')
+        except Exception as e:
+            print(e)
             showUnauthorized()
 
     if isStudent:
         isStudAllowedtoEnter(parseUser["section"], uid)
     elif isInstructor:
-        isFacultysTimeNow(parseUser["instructor_name"], parseUser["tag_uid"])
+        isFacultysTimeNow(parseUser["instructor_name"], uid)
 
 
 # For every :00 minute of hour, fetch the latest data from the cloud for backup.
 def backup():
-    global localMode
+    localMode = isInternetUp()
     if localMode == False:
         try:
             schedres = requests.get(BASE_API_URL + "schedules")
@@ -187,9 +212,6 @@ def backup():
         return
 
 
-# For every second, check if the internet connection and the cloud server is up.
-
-
 # Run any pending scheduled task, if there's any.
 def runscheduled():
     # Run all scheduled task at bootup. (Note: Comment out on prod.)
@@ -231,20 +253,20 @@ def main():
         # except KeyboardInterrupt:
         #     GPIO.cleanup()
         #     continue
-        
+
         # Uncomment below and comment the try-catch block above
         # if testing in windows PC
-        
+
         uid = input("Input ID")
         cardDataInHex = f"{int(uid):x}"
         minusMfgID = cardDataInHex[:-2]
         big_endian = bytearray.fromhex(str(minusMfgID))
         big_endian.reverse()
         little_endian = "".join(f"{n:02X}" for n in big_endian)
-        checkUser(little_endian)
+        checkUser(uid)
 
 
-t1 = Thread(target=internetCheck)
+# t1 = Thread(target=internetCheck)
 t2 = Thread(target=main)
 t3 = Thread(target=lcdScreenController)
 t4 = Thread(target=runscheduled)
@@ -252,10 +274,11 @@ t5 = Thread(target=endpoint)
 t6 = Thread(target=guestMode_QuestionMark)
 t7 = Thread(target=tracker)
 
-t1.start()
+# t1.start()
 t2.start()
 t3.start()
 t4.start()
 t5.start()
 t6.start()
 t7.start()
+# print(localMode)
