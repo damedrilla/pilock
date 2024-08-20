@@ -1,5 +1,4 @@
 import RPi.GPIO as GPIO
-
 # from mfrc522 import SimpleMFRC522
 import requests
 import schedule as __schedule
@@ -7,15 +6,16 @@ import json
 from datetime import datetime
 import socket
 from threading import Thread
+import urllib.request
+import time
+import os
+import coloredlogs, logging
 from getCurrentSchedule import currentSchedule
 from rest_endpoint import endpoint
 from lock_state import changeLockState
 from getFaculty import getFaculty
 from getStudent import getStudent
-import urllib.request
-import time
-import os
-import coloredlogs, logging
+from LCDcontroller import lcdScreenController
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="DEBUG", logger=logger)
@@ -280,10 +280,12 @@ def main():
 
 t1 = Thread(target=internetCheck)
 t2 = Thread(target=main)
+t3 = Thread(target=lcdScreenController)
 t4 = Thread(target=runscheduled)
 t5 = Thread(target=endpoint)
 
 t1.start()
 t2.start()
+t3.start()
 t4.start()
 t5.start()
