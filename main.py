@@ -272,6 +272,7 @@ def main():
     reader = SimpleMFRC522()
     while True:
         try:
+            logger.info('Waiting for an ID...')
             cardData = reader.read_id()
             cardDataInHex = f"{cardData:x}"
             minusMfgID = cardDataInHex[:-2]
