@@ -188,9 +188,9 @@ def checkUser(id):
             logger.debug("ID holder is a faculty!")
         except Exception as e:
             changeLockState("lock")
-            sayUnauthorized() 
-            # speech = "access denied!"
-            # os.system('espeak "'+speech+'"')
+            # sayUnauthorized() 
+            speech = "access denied!"
+            os.system('espeak -v en "'+speech+'" --stdout | aplay')
             logger.debug("ID holder is not registered!")
             showUnauthorized()
 
