@@ -258,6 +258,6 @@ t5 = Thread(target=endpoint)
 
 t1.start()
 t2.start()
-# t3.start()
+t3.start()
 t4.start()
 t5.start()
