@@ -188,9 +188,6 @@ def main():
             GPIO.cleanup()
             continue
 
-        # cardID = input("Scan your card: ")
-        checkUser(cardID)
-
 
 try:
     os.system("cls")
