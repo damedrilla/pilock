@@ -27,9 +27,11 @@ def currentSchedule():
             sched = json.loads(currentSchedule.text)
             parsed_schedule = []
             parsed_schedule = sched["schedule"][0]
+            parsed_schedule['code'] = 200
         except Exception:
             try:
                 parsed_schedule = sched["event"][0]
+                parsed_schedule['code'] = 200
             except:
                 parsed_schedule = {"code": 404}
         # schedStrip = str(sched['schedule']).strip('[]')
@@ -59,6 +61,7 @@ def currentSchedule():
                 if isCorrectSchedule == True:
                     right_schedule = parseEvents["events"][events]
                     right_schedule["sched_type"] = "Event"
+                    right_schedule['code'] = 200
                     return right_schedule
                 else:
                     continue
@@ -76,6 +79,7 @@ def currentSchedule():
                 ):
                     right_schedule = parseMakeup["schedules"][make_up_sch]
                     right_schedule["sched_type"] = "Regular Class/Make-Up Schedules"
+                    right_schedule['code'] = 200
                     return right_schedule
                 else:
                     continue
@@ -93,13 +97,13 @@ def currentSchedule():
                 ):
                     right_schedule = parseSched["schedules"][reg_sch]
                     right_schedule["sched_type"] = "Regular Class/Make-Up Schedules"
+                    right_schedule['code'] = 200
                     return right_schedule
                 else:
                     continue
         except Exception as e:
             pass
-        return {"status": 404}
-
+        return {"code": 404}
 
 # Line 28-30 demonstrated how it works. In local mode, the only data we pass is
 # the entire value of an index, that means they don't have a parent key. The Web API
