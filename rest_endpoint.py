@@ -1,4 +1,4 @@
-from flask import Flask, json
+from flask import Flask, json, jsonify
 from lock_state import changeLockState
 from getCurrentSchedule import currentSchedule
 
@@ -12,6 +12,6 @@ def endpoint():
         return json.dumps({"success": True}), 201
     @api.route("/schedule", methods=['GET'])
     def getSched():
-        return json.dumps(currentSchedule()), 200
+        return jsonify(currentSchedule()), 200
         
     api.run(host="0.0.0.0", port=5000)
