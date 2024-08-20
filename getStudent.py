@@ -20,7 +20,7 @@ def getStudent(uid):
         #403 -> Not enrolled
         #404 | 500 -> Not registered
         try:
-            students_list = requests.post("https://www.pilocksystem.live/api/attendstud/" +  str(uid), timeout= 2)
+            students_list = requests.post("https://www.pilocksystem.live/api/attendstud/" +  str(uid).zfill(10), timeout= 2)
             if students_list.status_code == 200:
                 return 200
             elif students_list.status_code == 401:
