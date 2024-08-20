@@ -3,6 +3,7 @@ import time
 alertUnauthorized = False
 wcUser = False
 alertGuestMode = False
+playChime = False
 welcomeName = ""
 
 def speak():
@@ -10,6 +11,7 @@ def speak():
     global wcUser 
     global alertGuestMode 
     global welcomeName 
+    global playChime
     while True:
         if alertUnauthorized:
             try:
@@ -31,6 +33,12 @@ def speak():
             except:
                 pass
             alertGuestMode = False
+        if playChime:
+            try:
+                requests.get('http://127.0.0.1:5001/chime')
+            except:
+                pass
+            playChime = False
         else:
             time.sleep(0.5)
 
@@ -48,3 +56,7 @@ def welcomeUser(name):
 def sayGuestMode():
     global alertGuestMode
     alertGuestMode = True
+    
+def chime():
+    global playChime
+    playChime = True
