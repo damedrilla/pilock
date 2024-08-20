@@ -11,9 +11,10 @@ localMode = True
 def isInternetUp():
     global localMode
     global internetWarningDone
-    try:
+    try:    
+            socket.setdefaulttimeout(2)
             host = socket.gethostbyname("1.1.1.1")
-            s = socket.create_connection((host, 80), 2)
+            s = socket.create_connection((host, 80))
             s.close()
             cloud_status = urllib.request.urlopen("http://152.42.167.108/").getcode()
             if cloud_status == 200:

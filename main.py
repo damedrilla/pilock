@@ -102,7 +102,7 @@ def isFacultysTimeNow(name, uid):
     return
 
 
-def isStudAllowedtoEnter(section, uid):
+def isStudAllowedtoEnter(section, uid, name):
     global isFacultyPresent
     sectionFound = False
 
@@ -119,7 +119,7 @@ def isStudAllowedtoEnter(section, uid):
         return print("Instructor not here yet!")
 
     try:
-        if curr_sched["schedule"][0]["section"] == section:
+        if curr_sched["section"] == section:
             sectionFound = True
         else:
             sectionFound = False
@@ -127,10 +127,13 @@ def isStudAllowedtoEnter(section, uid):
         sectionFound = False
 
     if sectionFound:
-        res = requests.post("http://152.42.167.108/api/attend/" + str(uid))
-        print(res.text)
+        try:
+            res = requests.post(BASE_API_URL + "attendstud/" + str(uid))
+            print(res.text)
+        except Exception:
+            pass
         changeLockState("unlock")
-        print("get in homie")
+        greetUser(name)
     else:
         changeLockState("lock")
         print("no blyat")
@@ -158,7 +161,7 @@ def checkUser(id):
             showUnauthorized()
 
     if isStudent:
-        isStudAllowedtoEnter(parseUser["section"], uid)
+        isStudAllowedtoEnter(parseUser["section"], uid, parseUser['name'])
     elif isInstructor:
         isFacultysTimeNow(parseUser["instructor_name"], uid)
 
@@ -235,25 +238,25 @@ def change_inst_state():
 def main():
     __schedule.every().hour.at(":00").do(backup)
     while True:
-        # reader = SimpleMFRC522()
-        # try:
-        #     print("Scan your ID card:")
-        #     cardData = reader.read_id()
-        #     cardDataInHex = f"{cardData:x}"
-        #     minusMfgID = cardDataInHex[:-2]
-        #     big_endian = bytearray.fromhex(str(minusMfgID))
-        #     big_endian.reverse()
-        #     little_endian = "".join(f"{n:02X}" for n in big_endian)
-        #     print(
-        #         "ID: "
-        #         + str(cardData)
-        #         + " Little Endian ID: "
-        #         + str(int(little_endian, 16))
-        #     )
-        #     checkUser(int(little_endian, 16))
-        # except KeyboardInterrupt:
-        #     GPIO.cleanup()
-        #     continue
+        reader = SimpleMFRC522()
+        try:
+            print("Scan your ID card:")
+            cardData = reader.read_id()
+            cardDataInHex = f"{cardData:x}"
+            minusMfgID = cardDataInHex[:-2]
+            big_endian = bytearray.fromhex(str(minusMfgID))
+            big_endian.reverse()
+            little_endian = "".join(f"{n:02X}" for n in big_endian)
+            print(
+                "ID: "
+                + str(cardData)
+                + " Little Endian ID: "
+                + str(int(little_endian, 16))
+            )
+            checkUser(int(little_endian, 16))
+        except KeyboardInterrupt:
+            GPIO.cleanup()
+            continue
 
         # Uncomment below and comment the try-catch block above
         # if testing in windows PC
