@@ -63,4 +63,3 @@ def endpoint():
         return jsonify({"localMode": isInternetUp()}), 200
 
     api.run(host="0.0.0.0", port=5000)
-endpoint()
