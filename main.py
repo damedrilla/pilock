@@ -175,11 +175,10 @@ def main():
     while True:
 
         reader = SimpleMFRC522()
-
         try:
             cardID = input("Scan your card: ")
             print("Scan your ID card:")
-            cardData = reader.read()
+            cardData = reader.read_id()
             cardUID = cardData.split(',')
             print("ID: " + str(cardUID[0]))
             checkUser(cardUID[0])
@@ -199,7 +198,7 @@ t2 = Thread(target=main)
 t4 = Thread(target=runscheduled)
 t5 = Thread(target=endpoint)
 
-# t1.start()
+t1.start()
 t2.start()
 t4.start()
 t5.start()
