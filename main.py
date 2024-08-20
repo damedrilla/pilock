@@ -89,11 +89,11 @@ def checkUser(id):
     sectionExists = False
     parseUser = []
     try:
-        try:
+        if localMode == False:
             userRes = requests.get("http://152.42.167.108/api/student/" + str(uid))
             parseUser = json.loads(userRes.text)
             print(parseUser)
-        except Exception:
+        else:
             students_bak = open("students.json")
             parseStuds = json.load(students_bak)
             for studs in range(len(parseStuds["students"])):
