@@ -9,6 +9,10 @@ logger = logging.getLogger(__name__)
 coloredlogs.install(level="DEBUG", logger=logger)
 
 
+# The goal of this method is to make sure that regardless of
+# connection status, the one we see in the Web API will have the
+# same key-value output as the one in the backup files for smooth transition
+# from online to local mode. Scroll to bottom for more details.
 def currentSchedule():
     localMode = isInternetUp()
     now = datetime.now()
@@ -24,16 +28,25 @@ def currentSchedule():
         try:
             parsed_schedule = sched["schedule"][0]
         except Exception:
-            parsed_schedule = sched
+            try:
+                parsed_schedule = sched["event"][0]
+            except:
+                parsed_schedule = sched
         # schedStrip = str(sched['schedule']).strip('[]')
         return parsed_schedule
     else:
         schedule_bak = open("backup_data/schedules.json")
         events_bak = open("backup_data/events.json")
         make_up_bak = open("backup_data/makeupclass.json")
+
         parseSched = json.load(schedule_bak)
         parseEvents = json.load(events_bak)
         parseMakeup = json.load(make_up_bak)
+
+        # We can close them, since they are in the buffer anyway.
+        schedule_bak.close()
+        events_bak.close()
+        make_up_bak.close()
         try:
             for events in range(len(parseEvents["events"])):
                 timeStart = parseEvents["events"][events]["event_start"]
@@ -85,3 +98,38 @@ def currentSchedule():
         except Exception as e:
             pass
         return {"status": 404}
+
+
+# Line 28-30 demonstrated how it works. In local mode, the only data we pass is
+# the entire value of an index, that means they don't have a parent key. The Web API
+# is the opposite of it, as it gives us the entire thing.
+
+# Web API data example
+# {
+#     "event": [
+#         {
+#             "id": 1,
+#             "sched_type": "Event",
+#             "title": "lmfao",
+#             "description": "asdasdsadnaskdmasdasd",
+#             "date": "2024-07-28",
+#             "event_start": "14:05:00",
+#             "event_end": "14:51:00",
+#         }
+#     ]
+# }
+
+# Example data on local mode (much cleaner)
+# {
+#     "id": 1,
+#     "sched_type": "Event",
+#     "title": "lmfao",
+#     "description": "asdasdsadnaskdmasdasd",
+#     "date": "2024-07-28",
+#     "event_start": "14:05:00",
+#     "event_end": "14:51:00",
+# }
+
+# So instead of having a pain of traversing through the child keys when fetching online, 
+# this method will ensure that the data we get online will follow the schema
+# of the one when we fetch on backup data. Less error prone and easy to debug. 

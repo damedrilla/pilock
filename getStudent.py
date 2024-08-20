@@ -10,7 +10,7 @@ def getStudent(uid):
     localMode = isInternetUp()
     if not localMode:
         # Students registered without an ID card has a value of null in tag_uid key
-        # and returns an exception if we try to compare it.
+        # and throws an exception if we try to compare it.
         # Try-catch block makes it sure the loop continues in case of a null tag_uid value.
         try:
             students_list = requests.get("https://www.pilocksystem.live/api/students")
