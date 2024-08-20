@@ -25,6 +25,7 @@ def tracker():
                     json.dump(data, f)
                     f.close()
             time.sleep(1)
+            state.close()
         except Exception as e:
             time.sleep(1)
-        state.close()
+            state.close()
