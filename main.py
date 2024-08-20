@@ -267,7 +267,6 @@ def change_inst_state():
 
 
 def main():
-    GPIO.cleanup()
     __schedule.every().hour.at(":00").do(backup)
     while True:
         try:
