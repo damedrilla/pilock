@@ -28,25 +28,25 @@ def isFacultysTimeNow(name, uid):
     global isFacultyPresentAlreadySet
     sc = currentSchedule(localMode)
     print(sc["schedule"])
-    try:
-        
-        if sc['schedule'][0]["instructor"] == name:
-            isFacultyPresent = True
-            changeLockState("unlock")
-            requests.post('http://152.42.167.108/api/attend/' + str(uid))
-            if not isFacultyPresentAlreadySet:
-                logger.info(
-                    "Faculty detected. Students can now scan their ID until "
-                    + str(sc["schedule"][0]["time_end"])
-                )
-                isFacultyPresentAlreadySet = True
-                __schedule.every().day.at(
-                    str(sc["schedule"][0]["time_end"])
-                ).do(change_inst_state)
-            elif isFacultyPresentAlreadySet:
-                logger.info("Faculty already present. No scheduling needed.")
-    except Exception:
-        logger.warning("nah not your time yet fam")
+    # try:
+
+    # if sc['schedule'][0]["instructor"] == name:
+    isFacultyPresent = True
+    changeLockState("unlock")
+    requests.post("http://152.42.167.108/api/attend/" + str(uid))
+    if not isFacultyPresentAlreadySet:
+        logger.info(
+            "Faculty detected. Students can now scan their ID until "
+            + str(sc["schedule"][0]["time_end"])
+        )
+        isFacultyPresentAlreadySet = True
+        __schedule.every().day.at(str(sc["schedule"][0]["time_end"])).do(
+            change_inst_state
+        )
+        # elif isFacultyPresentAlreadySet:
+        #     logger.info("Faculty already present. No scheduling needed.")
+    # except Exception:
+    #     logger.warning("nah not your time yet fam")
     return
 
 
@@ -99,7 +99,7 @@ def checkUser(id):
                     parseUser.append(parseStuds["students"][studs])
                     break
     except Exception as e:
-        print('first try error')
+        print("first try error")
 
     try:
         section = parseUser[0]["section"]
@@ -110,13 +110,15 @@ def checkUser(id):
             inst = json.loads(instructor_list.text)
             print(inst)
             for instr in range(len(inst["instructors"])):
-                uuid =  inst["instructors"][instr]["tag_uid"]
+                uuid = inst["instructors"][instr]["tag_uid"]
                 uid_no_lead = int(uuid)
                 print(uid_no_lead)
                 if str(id) == str(uid_no_lead):
-                    isFacultysTimeNow(inst["instructors"][instr]["instructor_name"], uid_no_lead)
+                    isFacultysTimeNow(
+                        inst["instructors"][instr]["instructor_name"], uid_no_lead
+                    )
         except Exception as e:
-            print('instructor: '+ str(e))
+            print("instructor: " + str(e))
     else:
         sectionExists = True
 
@@ -195,19 +197,23 @@ def main():
         try:
             print("Scan your ID card:")
             cardData = reader.read_id()
-            cardDataInHex = f'{cardData:x}'
+            cardDataInHex = f"{cardData:x}"
             minusMfgID = cardDataInHex[:-2]
             big_endian = bytearray.fromhex(str(minusMfgID))
             big_endian.reverse()
-            little_endian = ''.join(f"{n:02X}" for n in big_endian)
-            print("ID: " + str(cardData) + " Little Endian ID: " + str(int(little_endian,16)))
+            little_endian = "".join(f"{n:02X}" for n in big_endian)
+            print(
+                "ID: "
+                + str(cardData)
+                + " Little Endian ID: "
+                + str(int(little_endian, 16))
+            )
             checkUser(little_endian)
         except KeyboardInterrupt:
             GPIO.cleanup()
             continue
         # uid = input("Input ID")
         # checkUser(uid)
-
 
 
 t1 = Thread(target=internetCheck)
