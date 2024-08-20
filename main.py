@@ -172,7 +172,6 @@ def checkUser(id):
     if uid == 274065971:
         changeLockState("unlock")
         logger.debug("Master key detected!")
-        time.sleep(0.5)
         return
 
     try:
