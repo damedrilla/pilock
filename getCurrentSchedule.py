@@ -1,6 +1,6 @@
 import requests
 import json
-from timecheck import isThisTheTime
+from timecheck import timeCheck
 from datetime import datetime
 import coloredlogs, logging
 
@@ -18,13 +18,18 @@ def currentSchedule(conn_status):
         currentSchedule = requests.get(
             "https://www.pilocksystem.live/api/schedules/current"
         )
-        sched = currentSchedule.json()
+        sched = json.loads(currentSchedule.text)
+        parsed_schedule = []
+        try:
+            parsed_schedule = sched['schedule'][0]
+        except Exception:
+            parsed_schedule = sched
         # schedStrip = str(sched['schedule']).strip('[]')
-        return json.loads(currentSchedule.text)
+        return parsed_schedule
     else:
-        schedule_bak = open("schedules.json")
-        events_bak = open("events.json")
-        make_up_bak = open("makeupclass.json")
+        schedule_bak = open("backup_data/schedules.json")
+        events_bak = open("backup_data/events.json")
+        make_up_bak = open("backup_data/makeupclass.json")
         parseSched = json.load(schedule_bak)
         parseEvents = json.load(events_bak)
         parseMakeup = json.load(make_up_bak)
@@ -33,7 +38,7 @@ def currentSchedule(conn_status):
                 timeStart = parseEvents["events"][events]["event_start"]
                 timeEnd = parseEvents["events"][events]["event_end"]
                 event_date = parseEvents["events"][events]["date"]
-                isCorrectSchedule = isThisTheTime(
+                isCorrectSchedule = timeCheck(
                     timeStart, timeEnd, current_time, date_scheduled=str(event_date)
                 )
                 if isCorrectSchedule == True:
@@ -49,7 +54,7 @@ def currentSchedule(conn_status):
             for make_up_sch in range(len(parseMakeup["schedules"])):
                 timeStart = parseMakeup["schedules"][make_up_sch]["time_start"]
                 timeEnd = parseMakeup["schedules"][make_up_sch]["time_end"]
-                isCorrectSchedule = isThisTheTime(timeStart, timeEnd, current_time)
+                isCorrectSchedule = timeCheck(timeStart, timeEnd, current_time)
                 if (
                     isCorrectSchedule == True
                     and current_weekday == parseMakeup["schedules"][make_up_sch]["days"]
@@ -66,7 +71,7 @@ def currentSchedule(conn_status):
             for reg_sch in range(len(parseSched["schedules"])):
                 timeStart = parseSched["schedules"][reg_sch]["time_start"]
                 timeEnd = parseSched["schedules"][reg_sch]["time_end"]
-                isCorrectSchedule = isThisTheTime(timeStart, timeEnd, current_time)
+                isCorrectSchedule = timeCheck(timeStart, timeEnd, current_time)
                 if (
                     isCorrectSchedule == True
                     and current_weekday == parseSched["schedules"][reg_sch]["days"]

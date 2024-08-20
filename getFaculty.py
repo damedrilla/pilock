@@ -1,9 +1,13 @@
 import requests
 import json
+
+
 def getFaculty(conn_status, uid):
     if not conn_status:
         try:
-            instructor_list = requests.get("https://www.pilocksystem.live/api/instructors")
+            instructor_list = requests.get(
+                "https://www.pilocksystem.live/api/instructors"
+            )
             inst = json.loads(instructor_list.text)
             for instr in range(len(inst["instructors"])):
                 uuid = inst["instructors"][instr]["tag_uid"]
@@ -12,10 +16,10 @@ def getFaculty(conn_status, uid):
                 if str(uid) == str(uid_no_lead):
                     return inst["instructors"][instr]
         except Exception as e:
-            return {'status': 404}
+            return {"status": 404}
     else:
         try:
-            faculty_bak = open('faculty.json')
+            faculty_bak = open("backup_data/faculty.json")
             inst = json.load(faculty_bak)
             for instr in range(len(inst["instructors"])):
                 uuid = inst["instructors"][instr]["tag_uid"]
@@ -24,7 +28,7 @@ def getFaculty(conn_status, uid):
                 if str(uid) == str(uid_no_lead):
                     return inst["instructors"][instr]
         except Exception as e:
-            return {'status': 404}
+            return {"status": 404}
 
 
 # x = getFaculty(True, 1234567891)

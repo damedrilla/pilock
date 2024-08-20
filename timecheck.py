@@ -3,7 +3,7 @@ import datetime
 
 #Time in, time out, and current time is guaranteed to have value. The optional values 
 #is the date in case of events and make-up classes.
-def isThisTheTime(time_in, time_out, curr_time, **kwargs):
+def timeCheck(time_in, time_out, curr_time, **kwargs):
     if 'date_scheduled' in kwargs:
         #Use this when we want to check time AND date
         date_scheduled = kwargs.get('date_scheduled')
@@ -20,6 +20,14 @@ def isThisTheTime(time_in, time_out, curr_time, **kwargs):
         
         #Both true means true, otherwise false
         return (date_today == date_scheduled) and (startTime <= currTime <= endTime)
+    elif 'time_end' in kwargs:
+        time_end = str(kwargs.get('time_end')).split(':')
+        currArr = str(kwargs.get('currTime')).split(':')
+        
+        endTime = datetime.time(int(time_end[0]), int(time_end[1]), int(time_end[2]))
+        currTime = datetime.time(int(currArr[0]), int(currArr[1]), int(currArr[2]))
+        
+        return currTime >= endTime
     else:
         #If we only want to check the time only, we go here.
         startArr = time_in.split(':')
