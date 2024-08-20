@@ -112,7 +112,7 @@ def checkUser(id):
             for instr in range(len(inst["instructors"])):
                 uuid =  inst["instructors"][instr]["tag_uid"]
                 print(inst["instructors"][instr]["tag_uid"])
-                if str(id) == uuid.rtrip("0"):
+                if str(id) == uuid.lstrip("0"):
                     isFacultysTimeNow(inst["instructors"][instr]["instructor_name"], inst["instructors"][instr]["tag_uid"])
         except Exception as e:
             print('instructor: '+ str(e))
