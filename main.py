@@ -113,8 +113,8 @@ def checkUser(id):
                 uuid = inst["instructors"][instr]["tag_uid"]
                 uid_no_lead = int(uuid)
                 print(uid_no_lead)
-                if str(id) == str(uid_no_lead):
-                    isFacultysTimeNow(
+                # if str(id) == str(uid_no_lead):
+                isFacultysTimeNow(
                         inst["instructors"][instr]["instructor_name"], uid_no_lead
                     )
         except Exception as e:
