@@ -23,9 +23,10 @@ from espeakEventListener import sayUnauthorized, sayGuestMode, speak, welcomeUse
 from guestModeTracker import guestMode_QuestionMark
 from internetCheck import isInternetUp
 from facIsPresentTracker import tracker
-import os
+from exitEventListener import exitListener
 
 logger = logging.getLogger(__name__)
+logging.basicConfig(filename='pilock.log', encoding='utf-8')
 coloredlogs.install(level="DEBUG", logger=logger)
 
 BASE_API_URL = "https://www.pilocksystem.live/api/"
@@ -309,6 +310,7 @@ t4 = Thread(target=runscheduled)
 t5 = Thread(target=endpoint)
 # t6 = Thread(target=guestMode_QuestionMark)
 t7 = Thread(target=tracker)
+t8 = Thread(target=exitListener)
 
 t2.start()
 t1.start()
@@ -317,4 +319,5 @@ t4.start()
 t5.start()
 # t6.start()
 t7.start()
+t8.start()
 # print(localMode)
