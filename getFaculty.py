@@ -2,12 +2,13 @@ import requests
 import json
 from internetCheck import isInternetUp
 
+
 def getFaculty(uid):
     localMode = isInternetUp()
     if not localMode:
         try:
             instructor_list = requests.get(
-                "https://www.pilocksystem.live/api/instructors"
+                "https://www.pilocksystem.live/api/instructors", timeout=2
             )
             inst = json.loads(instructor_list.text)
             for instr in range(len(inst["instructors"])):

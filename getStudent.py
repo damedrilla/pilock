@@ -13,7 +13,7 @@ def getStudent(uid):
         # and throws an exception if we try to compare it.
         # Try-catch block makes it sure the loop continues in case of a null tag_uid value.
         try:
-            students_list = requests.get("https://www.pilocksystem.live/api/students")
+            students_list = requests.get("https://www.pilocksystem.live/api/students", timeout= 2)
             stud_json = json.loads(students_list.text)
             for index in range(len(stud_json["students"])):
                 try:
