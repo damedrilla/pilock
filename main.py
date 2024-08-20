@@ -150,6 +150,7 @@ def checkUser(id):
     if uid == 274065971:
         changeLockState("unlock")
         logger.debug("Master key detected!")
+        return
 
     try:
         parseUser = getStudent(uid)
