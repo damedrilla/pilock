@@ -13,7 +13,7 @@ from lock_state import changeLockState
 import urllib.request
 import time
 currSched = []
-isFacultyPresent = False
+isFacultyPresent = True
 localMode = False
 def isInternetUp():
     global localMode
@@ -138,13 +138,13 @@ def main():
             userRes = []
             parseUser = []
             try:
-                userRes = requests.get('http://192.168.1.100:322/users/student/' + str(id).replace('(', ''))
+                userRes = requests.get('http://152.42.167.108/api/students/' + str(id).replace('(', ''))
                 parseUser =  json.loads(userRes.text)
             except Exception:
                 print('No user found, moving to faculty query')
                 
             try:
-                section = parseUser['data'][0]['section']
+                section = parseUser['students'][0]['section']
             except Exception:
                 try:
                     instructor_list = requests.get('http://152.42.167.108/api/instructors')
@@ -177,6 +177,7 @@ def main():
         # finally:
         #     # GPIO.cleanup()
         #     continue
+
         cardID = input("Scan your card: ")
         checkUser(cardID)
 

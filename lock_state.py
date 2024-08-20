@@ -1,6 +1,14 @@
+import RPi.GPIO as GPIO
 from threading import Thread
 import time
+# Set the GPIO mode (BCM or BOARD)
+GPIO.setmode(GPIO.BCM)
 
+# Define the GPIO pin controlled the electromagnetic lock via the relay module
+RELAY_PIN = 4
+
+# Set the relay pin as an output pin
+GPIO.setup(RELAY_PIN, GPIO.OUT)
 #Time remaining until the door locks again
 #This is the condition if the door is locked or otherwise (>0 = unlocked)
 timeRemaining = 0
@@ -30,6 +38,7 @@ def lockState():
         doorIsLocked = True
         #Send a signal to the relay to lock the thing
         print('State changed to locked')
+        GPIO.output(RELAY_PIN, GPIO.LOW)
         time.sleep(1)
       else:
         print('Locked')
@@ -39,6 +48,7 @@ def lockState():
         doorIsLocked = False
         #Send a signal to the relay to lock the thing
         print('State changed to unlocked')
+        GPIO.output(RELAY_PIN, GPIO.HIGH)
         time.sleep(1)
       else:
         print('Unlocked')
@@ -47,8 +57,8 @@ def lockState():
 def changeLockState(cmd):
   global timeRemaining
   if cmd == 'unlock':
-    #Set the time remaining to 30 seconds
-    timeRemaining = 30
+    #Set the time remaining to 15 seconds
+    timeRemaining = 15
   if cmd == 'lock':
     #Regardless if there's still a time to enter, the countdown immediately reverts back to 0 if an unauthorized person tries to enter.
     timeRemaining = 0
