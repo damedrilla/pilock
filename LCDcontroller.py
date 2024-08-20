@@ -13,7 +13,7 @@ person_to_greet = ""
 lcd = CharLCD(i2c_expander="PCF8574", address=0x27, port=1, cols=20, rows=4, dotsize=8)
 
 
-def lcdScreenController(**kwargs):
+def lcdScreenController():
     global isUnauthorizedWarningUp 
     global isNoFacWarningUp 
     global shouldGreet
@@ -22,7 +22,7 @@ def lcdScreenController(**kwargs):
     timeChanged = False
     current_time = datetime.now()
     while True:
-        if not isUnauthorizedWarningUp or not isNoFacWarningUp or not shouldGreet:
+        if not isUnauthorizedWarningUp and not isNoFacWarningUp and not shouldGreet:
             sched_data = currentSchedule(localMode)
             current_subject = ""
             current_faculty = ""
@@ -40,7 +40,7 @@ def lcdScreenController(**kwargs):
             if current_time != c.strftime("%b-%d %I:%M %p"):
                 current_time = c.strftime("%b-%d %I:%M %p")
                 timeChanged = True
-            if timeChanged or "revert" in kwargs:
+            if timeChanged:
                 lcd.clear()
                 lcd.write_string(current_time)
                 lcd.cursor_pos = (1, 0)
