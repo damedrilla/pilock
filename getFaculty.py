@@ -27,8 +27,8 @@ def getFaculty(conn_status, uid):
             return {'status': 404}
 
 
-x = getFaculty(True, 1234567891)
-y = getFaculty(False, 1234567891)
+# x = getFaculty(True, 1234567891)
+# y = getFaculty(False, 1234567891)
 
-print(x)
-print(y)
+# print(x)
+# print(y)

@@ -1,21 +1,24 @@
 import RPi.GPIO as GPIO
-# from mfrc522 import SimpleMFRC522
+from mfrc522 import SimpleMFRC522
 import requests
 import schedule as __schedule
 import json
 from datetime import datetime
-import socket
 from threading import Thread
-import urllib.request
 import time
-import os
 import coloredlogs, logging
 from getCurrentSchedule import currentSchedule
 from rest_endpoint import endpoint
 from lock_state import changeLockState
 from getFaculty import getFaculty
 from getStudent import getStudent
-from LCDcontroller import lcdScreenController
+from LCDcontroller import (
+    lcdScreenController,
+    showUnauthorized,
+    showNoFacultyYet,
+    greetUser,
+)
+from internetCheck import internetCheck, localMode
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="DEBUG", logger=logger)
@@ -128,22 +131,21 @@ def checkUser(id):
     isInstructor = False
 
     try:
-        parseUser = getStudent(True, uid)
+        parseUser = getStudent(localMode, uid)
         parseUser["section"]
         isStudent = True
     except Exception:
         try:
-            parseUser = getFaculty(True, uid)
+            parseUser = getFaculty(localMode, uid)
             parseUser["instructor_name"]
             isInstructor = True
         except Exception:
-            print("This student doesn't exist. Are you real?")
+            showUnauthorized()
 
     if isStudent:
         isStudAllowedtoEnter(parseUser["section"], uid)
     elif isInstructor:
         isFacultysTimeNow(parseUser["instructor_name"], parseUser["tag_uid"])
-
 
 
 # For every :00 minute of hour, fetch the latest data from the cloud for backup.
@@ -195,37 +197,7 @@ def backup():
         return
 
 
-def isInternetUp():
-    global localMode
-    global internetWarningDone
-    try:
-        host = socket.gethostbyname("1.1.1.1")
-        s = socket.create_connection((host, 80), 2)
-        s.close()
-        cloud_status = urllib.request.urlopen("http://152.42.167.108/").getcode()
-        if cloud_status == 200:
-            if internetWarningDone == False or localMode == True:
-                logger.info("Connected to server")
-                internetWarningDone = True
-            localMode = False
-    except Exception:
-        if localMode == False and internetWarningDone == True:
-            logger.critical(
-                "No Internet connection or the server is unavailable. Switching to local mode. "
-            )
-        elif internetWarningDone == False:
-            logger.critical(
-                "No Internet connection or the server is unavailable. Switching to local mode. "
-            )
-            internetWarningDone = True
-        localMode = True
-
-
 # For every second, check if the internet connection and the cloud server is up.
-def internetCheck():
-    while True:
-        isInternetUp()
-        time.sleep(1)
 
 
 # Run any pending scheduled task, if there's any.
@@ -250,32 +222,32 @@ def change_inst_state():
 def main():
     __schedule.every().hour.at(":00").do(backup)
     while True:
-        # reader = SimpleMFRC522()
-        # try:
-        #     print("Scan your ID card:")
-        #     cardData = reader.read_id()
-        #     cardDataInHex = f"{cardData:x}"
-        #     minusMfgID = cardDataInHex[:-2]
-        #     big_endian = bytearray.fromhex(str(minusMfgID))
-        #     big_endian.reverse()
-        #     little_endian = "".join(f"{n:02X}" for n in big_endian)
-        #     print(
-        #         "ID: "
-        #         + str(cardData)
-        #         + " Little Endian ID: "
-        #         + str(int(little_endian, 16))
-        #     )
-        #     checkUser(int(little_endian, 16))
-        # except KeyboardInterrupt:
-        #     GPIO.cleanup()
-        #     continue
-        uid = input("Input ID")
-        cardDataInHex = f"{int(uid):x}"
-        minusMfgID = cardDataInHex[:-2]
-        big_endian = bytearray.fromhex(str(minusMfgID))
-        big_endian.reverse()
-        little_endian = "".join(f"{n:02X}" for n in big_endian)
-        checkUser(little_endian)
+        reader = SimpleMFRC522()
+        try:
+            print("Scan your ID card:")
+            cardData = reader.read_id()
+            cardDataInHex = f"{cardData:x}"
+            minusMfgID = cardDataInHex[:-2]
+            big_endian = bytearray.fromhex(str(minusMfgID))
+            big_endian.reverse()
+            little_endian = "".join(f"{n:02X}" for n in big_endian)
+            print(
+                "ID: "
+                + str(cardData)
+                + " Little Endian ID: "
+                + str(int(little_endian, 16))
+            )
+            checkUser(int(little_endian, 16))
+        except KeyboardInterrupt:
+            GPIO.cleanup()
+            continue
+        # uid = input("Input ID")
+        # cardDataInHex = f"{int(uid):x}"
+        # minusMfgID = cardDataInHex[:-2]
+        # big_endian = bytearray.fromhex(str(minusMfgID))
+        # big_endian.reverse()
+        # little_endian = "".join(f"{n:02X}" for n in big_endian)
+        # checkUser(little_endian)
 
 
 t1 = Thread(target=internetCheck)
@@ -286,6 +258,6 @@ t5 = Thread(target=endpoint)
 
 t1.start()
 t2.start()
-t3.start()
+# t3.start()
 t4.start()
 t5.start()
