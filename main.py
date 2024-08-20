@@ -144,7 +144,7 @@ def isStudAllowedtoEnter(
     if sectionFound:
         changeLockState("unlock")
         greetUser(name)
-        welcomeUser(name)
+        # welcomeUser(name)
         try:
             res = requests.post(BASE_API_URL + "attendstud/" + str(uid))
             print(res.text)
