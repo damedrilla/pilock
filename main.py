@@ -125,7 +125,8 @@ def isStudAllowedtoEnter(section, uid):
 
 def checkUser(id):
     global localMode
-    uid = int(str(id), 16)
+    #Make sure leading zeroes are gone
+    uid = int(id)
     parseUser = []
     isStudent = False
     isInstructor = False
@@ -242,6 +243,10 @@ def main():
         except KeyboardInterrupt:
             GPIO.cleanup()
             continue
+        
+        # Uncomment below and comment the try-catch block above
+        # if testing in windows PC
+        
         # uid = input("Input ID")
         # cardDataInHex = f"{int(uid):x}"
         # minusMfgID = cardDataInHex[:-2]
