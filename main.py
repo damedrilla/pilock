@@ -26,6 +26,7 @@ from facIsPresentTracker import tracker
 from exitEventListener import exitListener
 from openvpn import connectionSwitcher
 import os
+os.seteuid(1000)
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="pilock.log", encoding="utf-8", level=logging.INFO)
 coloredlogs.install(level="DEBUG", logger=logger)
