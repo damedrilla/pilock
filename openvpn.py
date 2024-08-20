@@ -17,6 +17,7 @@ def connectionSwitcher():
     localMode = isInternetUp()
 
     if not localMode and not isConnected:
+        print('Started connecting to OpenVPN server...')
         startConThread.start()
         isConnected = True
     elif isConnected and localMode:
