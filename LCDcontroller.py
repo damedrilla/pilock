@@ -41,6 +41,8 @@ def lcdScreenController():
                 lcd.write_string(current_faculty)
                 timeChanged = False
             time.sleep(1)
+        else:
+            time.sleep(1)
 
 
 def showUnauthorized():
