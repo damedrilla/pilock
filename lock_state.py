@@ -42,6 +42,7 @@ def lockState():
     global guestMode
     global doorIsLocked
     # Set them pinouts for relay and the mag lock itself
+    # piss off bcm for wasted 3 days of debugging
     GPIO.setmode(GPIO.BOARD)
     RELAY_PIN = 7
     GPIO.setup(RELAY_PIN, GPIO.OUT)
