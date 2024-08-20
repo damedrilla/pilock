@@ -83,6 +83,7 @@ def isFacultysTimeNow(name, uid):
         if sc_parsed["instructor"] == name:
             isFacultyPresent = True
             changeLockState("unlock")
+            greetUser(name)
             try:
                 req = requests.post(BASE_API_URL + "attendinst/" + str(uid), timeout=5)
                 logger.info(print(json.loads(req.text)))
