@@ -6,10 +6,6 @@ from guestModeTracker import guestMode_QuestionMark
 
 logger = logging.getLogger(__name__)
 coloredlogs.install(level="DEBUG", logger=logger)
-# Set them pinouts for relay and the mag lock itself
-GPIO.setmode(GPIO.BCM)
-RELAY_PIN = 4
-GPIO.setup(RELAY_PIN, GPIO.OUT)
 
 # Time remaining until the door locks again
 # This is the condition if the door is locked or otherwise (>0 = unlocked)
@@ -43,6 +39,10 @@ def countItDown():
 # Magnet lock is connected though normally closed port in the relay
 def lockState():
     global doorIsLocked
+    # Set them pinouts for relay and the mag lock itself
+    GPIO.setmode(GPIO.BCM)
+    RELAY_PIN = 4
+    GPIO.setup(RELAY_PIN, GPIO.OUT)
     while True:
         guestMode = guestMode_QuestionMark()
         if not guestMode:
