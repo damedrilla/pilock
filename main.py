@@ -203,6 +203,7 @@ def checkUser(id):
 def backup():
     localMode = isInternetUp()
     if localMode == False:
+        time.sleep(3)
         try:
             schedres = requests.get(BASE_API_URL + "schedules")
             with open("backup_data/schedules.json", "w") as f:
@@ -244,7 +245,6 @@ def backup():
             logger.critical(
                 "Blank response. Make-up class schedules data might be empty!"
             )
-        f.close()
     else:
         return
 
@@ -270,8 +270,7 @@ def change_inst_state():
 
 def main():
     #Clear log file on start
-    with open('pilock.log', 'w'):
-        pass
+    open('pilock.log', 'w').close()
     __schedule.every().hour.at(":00").do(backup)
     reader = SimpleMFRC522()
     while True:
