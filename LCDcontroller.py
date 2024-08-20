@@ -52,7 +52,7 @@ def showUnauthorized():
     lcd.write_string('WHO THE FUCK ARE YOU LMAOOOO GET OUT')
     time.sleep(5)
     isAltScreenInfoActive = False
-    lcdScreenController(revert='hell yeah')
+    # lcdScreenController(revert='hell yeah')
 
 
 def showNoFacultyYet():
