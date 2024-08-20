@@ -5,7 +5,7 @@ import coloredlogs, logging
 from guestModeTracker import guestMode_QuestionMark
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='pilock.log', encoding='utf-8')
+logging.basicConfig(filename='pilock.log', encoding='utf-8', level=logging.DEBUG)
 coloredlogs.install(level="DEBUG", logger=logger)
 
 # Time remaining until the door locks again
