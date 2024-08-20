@@ -190,7 +190,7 @@ def main():
         reader = SimpleMFRC522()
         try:
             print("Scan your ID card:")
-            cardData = reader.read()
+            cardData = reader.read_id()
             print("ID: " + str(cardData))
             checkUser(cardData)
         except Exception:
