@@ -285,8 +285,9 @@ def main():
                 + str(int(little_endian, 16))
             )
             checkUser(int(little_endian, 16))
-        except Exception as e:
-            print(e)
+        except KeyboardInterrupt:
+            GPIO.cleanup()
+        except:
             GPIO.cleanup()
 
         # Uncomment below and comment the try-catch block above

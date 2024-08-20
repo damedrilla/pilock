@@ -38,10 +38,11 @@ def countItDown():
 # Uses the time remaining as condition if the lock is on or off
 # Magnet lock is connected though normally closed port in the relay
 def lockState():
+    GPIO.cleanup()
     global doorIsLocked
     # Set them pinouts for relay and the mag lock itself
     GPIO.setmode(GPIO.BCM)
-    RELAY_PIN = 17
+    RELAY_PIN = 4
     GPIO.setup(RELAY_PIN, GPIO.OUT)
     while True:
         guestMode = guestMode_QuestionMark()
