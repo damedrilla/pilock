@@ -90,7 +90,7 @@ def checkUser(id):
     parseUser = []
     try:
         try:
-            userRes = requests.get("http://152.42.167.108/api/students/" + uid)
+            userRes = requests.get("http://152.42.167.108/api/student/" + str(uid))
             parseUser = json.loads(userRes.text)
         except Exception:
             students_bak = open("students.json")
@@ -103,7 +103,7 @@ def checkUser(id):
         print("first try error")
 
     try:
-        section = parseUser[0]["section"]
+        section = parseUser["students"][0]["section"]
         print("Section:" + section)
     except Exception:
         try:
@@ -116,8 +116,8 @@ def checkUser(id):
                 print(uid_no_lead)
                 # if str(id) == str(uid_no_lead):
                 isFacultysTimeNow(
-                        inst["instructors"][instr]["instructor_name"], uid_no_lead
-                    )
+                    inst["instructors"][instr]["instructor_name"], uid_no_lead
+                )
         except Exception as e:
             print("instructor: " + str(e))
     else:
