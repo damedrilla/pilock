@@ -1,3 +1,4 @@
+from ast import parse
 from socket import timeout
 import RPi.GPIO as GPIO
 from mfrc522 import SimpleMFRC522
@@ -21,6 +22,7 @@ from LCDcontroller import (
     showRegisteredButOutsideOfSchedule,
 )
 from backup import backup
+from getStudentData import getStudentData
 from espeakEventListener import sayUnauthorized, sayGuestMode, speak, welcomeUser, chime
 from guestModeTracker import guestMode_QuestionMark
 from internetCheck import isInternetUp
@@ -178,8 +180,28 @@ def checkUser(id):
         return
 
     try:
-        parseUser = getStudent(uid)
-        parseUser["section"]
+        #Return codes
+        #200 -> Allowed to enter 
+        #401 -> Faculty is absent
+        #403 -> Not enrolled
+        #404 | 500 -> Not registered
+        parseUser = getStudentData(uid)
+        section = parseUser['section']
+        can_they_enter = getStudent(uid)
+        print(can_they_enter)
+        if can_they_enter == 200:
+            changeLockState("unlock")
+            greetUser(parseUser['name'])
+            welcomeUser(parseUser['name'])
+        elif can_they_enter == 401:
+            changeLockState('lock')
+            showNoFacultyYet(section)
+        elif can_they_enter == 403:
+            changeLockState('lock')
+            showRegisteredButOutsideOfSchedule()
+        else:
+            changeLockState('lock') 
+            raise Exception('nah dude')
         isStudent = True
         logger.debug("ID holder is a student!")
     except Exception:
@@ -191,11 +213,12 @@ def checkUser(id):
         except Exception as e:
             changeLockState("lock")
             sayUnauthorized()
-            logger.debug("ID holder is not registered!")
+            logger.warning("ID holder is not registered!")
             showUnauthorized()
 
     if isStudent:
-        isStudAllowedtoEnter(parseUser["section"], uid, parseUser["name"])
+        # isStudAllowedtoEnter(parseUser["section"], uid, parseUser["name"])
+        return
     elif isInstructor:
         isFacultysTimeNow(parseUser["instructor_name"], uid)
 
