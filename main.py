@@ -1,8 +1,7 @@
-# import RPi.GPIO as GPIO
-# from mfrc522 import SimpleMFRC522
+import RPi.GPIO as GPIO
+from mfrc522 import SimpleMFRC522
 import requests
 import schedule as __schedule
-import timecheck
 import json
 from datetime import datetime
 import socket
@@ -175,21 +174,21 @@ def main():
     __schedule.every().hour.at(":00").do(backup)
     while True:
 
-        # reader = SimpleMFRC522()
+        reader = SimpleMFRC522()
 
-        # try:
-        #     cardID = input("Scan your card: ")
-        #     # print("Scan your ID card:")
-        #     # cardData = reader.read()
-        #     # cardUID = cardData.split(',')
-        #     # print("ID: " + str(cardUID[0]))
-        #     # checkUser(cardUID[0])
-        #     checkUser(cardID)
-        # finally:
-        #     # GPIO.cleanup()
-        #     continue
+        try:
+            cardID = input("Scan your card: ")
+            print("Scan your ID card:")
+            cardData = reader.read_id()
+            cardUID = cardData.split(',')
+            print("ID: " + str(cardUID[0]))
+            checkUser(cardUID[0])
+            checkUser(cardID)
+        except Exception:
+            GPIO.cleanup()
+            continue
 
-        cardID = input("Scan your card: ")
+        # cardID = input("Scan your card: ")
         checkUser(cardID)
 
 
