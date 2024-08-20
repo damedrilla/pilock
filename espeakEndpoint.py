@@ -28,6 +28,12 @@ def endpoint():
     @api.route('/chime', methods=['GET'])
     def chime():
         os.system('play -n synth 3 sin 960 fade l 0 3 2.8 trim 0 1')
+    
+    @api.route("/faculty_absent", methods=['GET'])
+    def absent():
+        os.system('play -n synth 3 sin 960 synth 3 sin fmod 1920 fade l 0 3 2.8 trim 0 1 repeat 2')
+        os.system('espeak -v en "faculty is absent" --stdout | aplay')
+        return json.dumps({"denied": True}), 200
     api.run(port=5001)
 
 endpoint()

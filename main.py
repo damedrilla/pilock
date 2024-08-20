@@ -23,7 +23,14 @@ from LCDcontroller import (
 )
 from backup import backup
 from getStudentData import getStudentData
-from espeakEventListener import sayUnauthorized, sayGuestMode, speak, welcomeUser, chime
+from espeakEventListener import (
+    sayUnauthorized,
+    sayGuestMode,
+    speak,
+    welcomeUser,
+    chime,
+    sayAbsent,
+)
 from guestModeTracker import guestMode_QuestionMark
 from internetCheck import isInternetUp
 from facIsPresentTracker import tracker
@@ -180,28 +187,30 @@ def checkUser(id):
         return
 
     try:
-        #Return codes
-        #200 -> Allowed to enter 
-        #401 -> Faculty is absent
-        #403 -> Not enrolled
-        #404 | 500 -> Not registered
+        # Return codes
+        # 200 -> Allowed to enter
+        # 401 -> Faculty is absent
+        # 403 -> Not enrolled
+        # 404 | 500 -> Not registered
         parseUser = getStudentData(uid)
-        section = parseUser['section']
+        section = parseUser["section"]
         can_they_enter = getStudent(uid)
         print(can_they_enter)
         if can_they_enter == 200:
             changeLockState("unlock")
-            greetUser(parseUser['name'])
-            welcomeUser(parseUser['name'])
+            welcomeUser(parseUser["name"])
+            greetUser(parseUser["name"])
         elif can_they_enter == 401:
-            changeLockState('lock')
+            changeLockState("lock")
             showNoFacultyYet(section)
+            sayAbsent()
         elif can_they_enter == 403:
-            changeLockState('lock')
+            changeLockState("lock")
             showRegisteredButOutsideOfSchedule()
+            sayUnauthorized()
         else:
-            changeLockState('lock') 
-            raise Exception('nah dude')
+            changeLockState("lock")
+            raise Exception("nah dude")
         isStudent = True
         logger.debug("ID holder is a student!")
     except Exception as e:
@@ -222,7 +231,6 @@ def checkUser(id):
         return
     elif isInstructor:
         isFacultysTimeNow(parseUser["instructor_name"], uid)
-
 
 
 # Run any pending scheduled task, if there's any.
