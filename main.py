@@ -144,7 +144,7 @@ def isStudAllowedtoEnter(
     if sectionFound:
         changeLockState("unlock")
         greetUser(name)
-        # welcomeUser(name)
+        welcomeUser(name)
         try:
             res = requests.post(BASE_API_URL + "attendstud/" + str(uid))
             print(res.text)
@@ -267,6 +267,7 @@ def change_inst_state():
 
 
 def main():
+    GPIO.cleanup()
     __schedule.every().hour.at(":00").do(backup)
     while True:
         try:
@@ -309,8 +310,8 @@ t5 = Thread(target=endpoint)
 # t6 = Thread(target=guestMode_QuestionMark)
 t7 = Thread(target=tracker)
 
-t1.start()
 t2.start()
+t1.start()
 t3.start()
 t4.start()
 t5.start()
