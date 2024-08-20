@@ -159,3 +159,10 @@ cython_debug/
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
 RPi/
+isitjson.py
+getschedtest.py
+events.json
+faculty.json
+makeupclass.json
+schedules.json
+students.json
