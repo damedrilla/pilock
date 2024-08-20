@@ -1,5 +1,6 @@
 import RPi.GPIO as GPIO
-from mfrc522 import SimpleMFRC522
+
+# from mfrc522 import SimpleMFRC522
 import requests
 import schedule as __schedule
 import json
@@ -18,35 +19,52 @@ logger = logging.getLogger(__name__)
 coloredlogs.install(level="DEBUG", logger=logger)
 
 currSched = []
-isFacultyPresent = False
+isFacultyPresent = True
 isFacultyPresentAlreadySet = False
 localMode = False
+internetWarningDone = False
 
 
 def isFacultysTimeNow(name, uid):
     global isFacultyPresent
     global isFacultyPresentAlreadySet
-    sc = currentSchedule(localMode)
-    print(sc["schedule"])
-    # try:
 
-    # if sc['schedule'][0]["instructor"] == name:
-    isFacultyPresent = True
-    changeLockState("unlock")
-    requests.post("http://152.42.167.108/api/attend/" + str(uid))
-    if not isFacultyPresentAlreadySet:
-        logger.info(
-            "Faculty detected. Students can now scan their ID until "
-            + str(sc["schedule"][0]["time_end"])
-        )
-        isFacultyPresentAlreadySet = True
-        __schedule.every().day.at(str(sc["schedule"][0]["time_end"])).do(
-            change_inst_state
-        )
-        # elif isFacultyPresentAlreadySet:
-        #     logger.info("Faculty already present. No scheduling needed.")
-    # except Exception:
-    #     logger.warning("nah not your time yet fam")
+    # Handling JSON on python Aware emojicon
+    # Depends on the current localMode value, the currentSchedule method gives different types of data
+    # It's either a string or a dictionary (or hash map whatever you wanna call it lole)
+    # These try-catch (abominations) blocks below handles the JSON data that
+    # the method gives to make it sure that the value we pass is always a JSON encoded data.
+    sc = currentSchedule(localMode)
+    sc_parsed = []
+    try:
+        try:
+            # No schedule found
+            sc_parsed = sc["status"]
+        except KeyError:
+            # Schedule from web API
+            sc_parsed = sc["schedule"][0]
+    except Exception:
+        # Offline backup
+        sc_parsed = sc
+
+    try:
+        if sc_parsed["instructor"] == name:
+            isFacultyPresent = True
+            changeLockState("unlock")
+            requests.post("http://152.42.167.108/api/attend/" + str(uid))
+            if not isFacultyPresentAlreadySet:
+                logger.info(
+                    "Faculty detected. Students can now scan their ID until "
+                    + str(sc["schedule"][0]["time_end"])
+                )
+                isFacultyPresentAlreadySet = True
+                __schedule.every().day.at(str(sc["schedule"][0]["time_end"])).do(
+                    change_inst_state
+                )
+            elif isFacultyPresentAlreadySet:
+                logger.info("Faculty already present. No scheduling needed.")
+    except Exception:
+        logger.warning("nah not your time yet fam")
     return
 
 
@@ -75,7 +93,8 @@ def isStudAllowedtoEnter(section, uid):
         sectionFound = False
 
     if sectionFound:
-        requests.post("http://152.42.167.108/api/attend/" + str(uid))
+        res = requests.post("http://152.42.167.108/api/attend/" + str(uid))
+        print(res.text)
         changeLockState("unlock")
         print("get in homie")
     else:
@@ -116,10 +135,10 @@ def checkUser(id):
                 uuid = inst["instructors"][instr]["tag_uid"]
                 uid_no_lead = int(uuid)
                 print(uid_no_lead)
-                # if str(id) == str(uid_no_lead):
-                isFacultysTimeNow(
-                    inst["instructors"][instr]["instructor_name"], uid_no_lead
-                )
+                if str(id) == str(uid_no_lead):
+                    isFacultysTimeNow(
+                        inst["instructors"][instr]["instructor_name"], uid_no_lead
+                    )
         except Exception as e:
             print("instructor: " + str(e))
     else:
@@ -135,35 +154,60 @@ def checkUser(id):
 def backup():
     global localMode
     if localMode == False:
-        schedres = requests.get("http://152.42.167.108/api/schedules")
-        with open("schedules.json", "w") as f:
-            json.dump(schedres.json(), f)
+        try:
+            schedres = requests.get("http://152.42.167.108/api/schedules")
+            with open("schedules.json", "w") as f:
+                json.dump(schedres.json(), f)
+        except Exception:
+            logger.critical("Blank response. Schedules data might be empty")
 
-        facultyres = requests.get("http://152.42.167.108/api/instructors")
-        with open("faculty.json", "w") as f:
-            json.dump(facultyres.json(), f)
+        try:
+            facultyres = requests.get("http://152.42.167.108/api/instructors")
+            with open("faculty.json", "w") as f:
+                json.dump(facultyres.json(), f)
+        except Exception:
+            logger.critical("Blank response. Faculty data might be empty")
 
-        studentres = requests.get("http://152.42.167.108/api/students")
-        with open("students.json", "w") as f:
-            json.dump(studentres.json(), f)
+        try:
+            studentres = requests.get("http://152.42.167.108/api/students")
+            with open("students.json", "w") as f:
+                json.dump(studentres.json(), f)
+        except Exception:
+            logger.critical("Blank response. Students data might be empty")
+
+        try:
+            eventres = requests.get("http://152.42.167.108/api/events")
+            with open("events.json", "w") as f:
+                json.dump(eventres.json(), f)
+        except Exception:
+            logger.critical("Blank response. Events data might be empty")
     else:
         return
 
 
 def isInternetUp():
     global localMode
+    global internetWarningDone
     try:
         host = socket.gethostbyname("1.1.1.1")
         s = socket.create_connection((host, 80), 2)
         s.close()
         cloud_status = urllib.request.urlopen("http://152.42.167.108/").getcode()
         if cloud_status == 200:
-            logger.info("Connected to server")
+            if internetWarningDone == False or localMode == True:
+                logger.info("Connected to server")
+                internetWarningDone = True
             localMode = False
     except Exception:
-        logger.critical(
-            "No Internet connection or the server is unavailable. Switching to local mode. "
-        )
+        if localMode == False and internetWarningDone == True:
+            logger.critical(
+                "No Internet connection or the server is unavailable. Switching to local mode. "
+            )
+        elif internetWarningDone == False:
+            logger.critical(
+                "No Internet connection or the server is unavailable. Switching to local mode. "
+            )
+            internetWarningDone = True
         localMode = True
 
 
@@ -196,27 +240,32 @@ def change_inst_state():
 def main():
     __schedule.every().hour.at(":00").do(backup)
     while True:
-        reader = SimpleMFRC522()
-        try:
-            print("Scan your ID card:")
-            cardData = reader.read_id()
-            cardDataInHex = f"{cardData:x}"
-            minusMfgID = cardDataInHex[:-2]
-            big_endian = bytearray.fromhex(str(minusMfgID))
-            big_endian.reverse()
-            little_endian = "".join(f"{n:02X}" for n in big_endian)
-            print(
-                "ID: "
-                + str(cardData)
-                + " Little Endian ID: "
-                + str(int(little_endian, 16))
-            )
-            checkUser(int(little_endian, 16))
-        except KeyboardInterrupt:
-            GPIO.cleanup()
-            continue
-        # uid = input("Input ID")
-        # checkUser(uid)
+        # reader = SimpleMFRC522()
+        # try:
+        #     print("Scan your ID card:")
+        #     cardData = reader.read_id()
+        #     cardDataInHex = f"{cardData:x}"
+        #     minusMfgID = cardDataInHex[:-2]
+        #     big_endian = bytearray.fromhex(str(minusMfgID))
+        #     big_endian.reverse()
+        #     little_endian = "".join(f"{n:02X}" for n in big_endian)
+        #     print(
+        #         "ID: "
+        #         + str(cardData)
+        #         + " Little Endian ID: "
+        #         + str(int(little_endian, 16))
+        #     )
+        #     checkUser(int(little_endian, 16))
+        # except KeyboardInterrupt:
+        #     GPIO.cleanup()
+        #     continue
+        uid = input("Input ID")
+        cardDataInHex = f"{int(uid):x}"
+        minusMfgID = cardDataInHex[:-2]
+        big_endian = bytearray.fromhex(str(minusMfgID))
+        big_endian.reverse()
+        little_endian = "".join(f"{n:02X}" for n in big_endian)
+        checkUser(little_endian)
 
 
 t1 = Thread(target=internetCheck)
