@@ -12,6 +12,10 @@ from lock_state import changeLockState
 import urllib.request
 import time
 import os
+import coloredlogs, logging
+
+logger = logging.getLogger(__name__)
+coloredlogs.install(level="DEBUG")
 
 currSched = []
 isFacultyPresent = False
@@ -25,19 +29,19 @@ def isFacultysTimeNow(name):
     sc = currentSchedule(localMode)
     try:
         if sc["schedule"][0]["instructor"] == name:
-            print(
-                "Faculty detected. Students can now scan their ID until "
-                + str(sc["schedule"][0]["time_end"])
-            )
             isFacultyPresent = True
             changeLockState("unlock")
             if not isFacultyPresentAlreadySet:
+                print(
+                    "Faculty detected. Students can now scan their ID until "
+                    + str(sc["schedule"][0]["time_end"])
+                )
                 isFacultyPresentAlreadySet = True
                 __schedule.every().day.at(
                     str(sc["schedule"][0]["time_end"]), "Asia/Manila"
                 ).do(change_inst_state)
             elif isFacultyPresentAlreadySet:
-                print("Faculty already present. No scheduling needed.")
+                logger.info("Faculty already present. No scheduling needed.")
     except Exception:
         print("nah not your time yet fam")
     return
@@ -58,9 +62,9 @@ def isStudAllowedtoEnter(section):
     if not isFacultyPresent:
         changeLockState("lock")
         return print("Instructor not here yet!")
-    
+
     try:
-        if curr_sched['schedule'][0]["section"] == section:
+        if curr_sched["schedule"][0]["section"] == section:
             sectionFound = True
         else:
             sectionFound = False
@@ -96,7 +100,7 @@ def checkUser(id):
 
     try:
         section = parseUser[0]["section"]
-        print('Section:' + section)
+        print("Section:" + section)
     except Exception:
         try:
             instructor_list = requests.get("http://152.42.167.108/api/instructors")
