@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-# from mfrc522 import SimpleMFRC522
+from mfrc522 import SimpleMFRC522
 import requests
 import schedule as __schedule
 import json
@@ -104,7 +104,7 @@ def checkUser(id):
         section = parseUser[0]["section"]
         print("Section:" + section)
     except Exception:
-        # try:
+        try:
             instructor_list = requests.get("http://152.42.167.108/api/instructors")
             inst = json.loads(instructor_list.text)
             print(inst)
@@ -112,8 +112,8 @@ def checkUser(id):
                 print(inst["instructors"][instr]["tag_uid"])
                 if str(id) == inst["instructors"][instr]["tag_uid"]:
                     isFacultysTimeNow(inst["instructors"][instr]["instructor_name"])
-        # except Exception as e:
-        #     print('instructor: '+ str(e))
+        except Exception as e:
+            print('instructor: '+ str(e))
     else:
         sectionExists = True
 
@@ -188,17 +188,22 @@ def change_inst_state():
 def main():
     __schedule.every().hour.at(":00").do(backup)
     while True:
-        # reader = SimpleMFRC522()
-        # try:
-        #     print("Scan your ID card:")
-        #     cardData = reader.read_id_no_block()
-        #     print("ID: " + str(cardData))
-        #     checkUser(cardData)
-        # except Exception:
-        #     GPIO.cleanup()
-        #     continue
-        uid = input("Input ID")
-        checkUser(uid)
+        reader = SimpleMFRC522()
+        try:
+            print("Scan your ID card:")
+            cardData = reader.read_id()
+            cardDataInHex = f'{cardData:x}'
+            minusMfgID = cardDataInHex[:-2]
+            big_endian = bytearray.fromhex(str(minusMfgID))
+            big_endian.reverse()
+            little_endian = ''.join(f"{n:02X}" for n in big_endian)
+            print("ID: " + str(cardData) + " Little Endian ID: " + little_endian)
+            checkUser(little_endian)
+        except Exception:
+            GPIO.cleanup()
+            continue
+        # uid = input("Input ID")
+        # checkUser(uid)
 
 
 
