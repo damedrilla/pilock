@@ -24,7 +24,7 @@ from guestModeTracker import guestMode_QuestionMark
 from internetCheck import isInternetUp
 from facIsPresentTracker import tracker
 from exitEventListener import exitListener
-
+from openvpn import connectionSwitcher
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='pilock.log', encoding='utf-8', level=logging.INFO)
 coloredlogs.install(level="DEBUG", logger=logger)
@@ -305,22 +305,21 @@ def main():
         # little_endian = "".join(f"{n:02X}" for n in big_endian)
         # checkUser(uid)
 
+#Threads
+main_thread = Thread(target=main)
+tts_thread = Thread(target=speak)
+lcd_thread = Thread(target=lcdScreenController)
+task_scheduler_thread = Thread(target=runscheduled)
+rest_endpoint_thread = Thread(target=endpoint)
+inst_prescence_tracker_thread = Thread(target=tracker)
+exit_listener_thread = Thread(target=exitListener)
+openvpn_thread = Thread(target=connectionSwitcher)
 
-t1 = Thread(target=speak)
-t2 = Thread(target=main)
-t3 = Thread(target=lcdScreenController)
-t4 = Thread(target=runscheduled)
-t5 = Thread(target=endpoint)
-# t6 = Thread(target=guestMode_QuestionMark)
-t7 = Thread(target=tracker)
-t8 = Thread(target=exitListener)
-
-t2.start()
-t1.start()
-t3.start()
-t4.start()
-t5.start()
-# t6.start()
-t7.start()
-t8.start()
-# print(localMode)
+main_thread.start()
+tts_thread.start()
+lcd_thread.start()
+task_scheduler_thread.start()
+rest_endpoint_thread.start()
+inst_prescence_tracker_thread.start()
+exit_listener_thread.start()
+openvpn_thread.start()
