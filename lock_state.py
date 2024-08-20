@@ -5,7 +5,7 @@ import coloredlogs, logging
 from guestModeTracker import guestMode_QuestionMark
 
 logger = logging.getLogger(__name__)
-logging.basicConfig(filename='pilock.log', encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(filename='pilock.log', encoding='utf-8', level=logging.INFO)
 coloredlogs.install(level="DEBUG", logger=logger)
 
 # Time remaining until the door locks again
@@ -52,7 +52,7 @@ def lockState():
                     doorIsLocked = True
                     # Send a signal to the relay to lock the thing
                     logger.info("State changed to locked")
-                    GPIO.output(RELAY_PIN, GPIO.HIGH)
+                    GPIO.output(RELAY_PIN, GPIO.LOW)
                     time.sleep(1)
                 else:
                     # If the state is the same anyway, just let it through
@@ -62,7 +62,7 @@ def lockState():
                 if doorIsLocked != False:
                     doorIsLocked = False
                     # Turn on the relay to cut power to the maglock (unlock)
-                    GPIO.output(RELAY_PIN, GPIO.LOW)
+                    GPIO.output(RELAY_PIN, GPIO.HIGH)
                     logger.info("State changed to unlocked")
                     time.sleep(1)
                 else:
@@ -70,7 +70,7 @@ def lockState():
         elif guestMode:
             if doorIsLocked != False:
                 doorIsLocked = False
-                GPIO.output(RELAY_PIN, GPIO.LOW)
+                GPIO.output(RELAY_PIN, GPIO.HIGH)
                 logger.info("State changed to unlocked")
                 time.sleep(1)
             else:
