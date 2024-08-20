@@ -8,6 +8,8 @@ from datetime import datetime
 import socket
 from threading import Thread
 from rest_endpoint import endpoint
+from lock_state import changeLockState
+from getCurrentSchedule import getCurrentSchedule
 import urllib.request
 import time
 currSched = []
@@ -86,6 +88,7 @@ def main():
             if sc['schedule'][0]['instructor'] == name:
                 print('Faculty detected. Students can now scan their ID until ' + str(sc['schedule'][0]['time_end']))
                 isFacultyPresent = True
+                changeLockState('unlock')
                 __schedule.every().day.at(str(sc['schedule'][0]['time_end']), 'Asia/Manila').do(change_inst_state)
             else:
                 print('nah not your time yet fam')
@@ -113,10 +116,12 @@ def main():
                     if str(schedules[REALsched]['days']) == str(current_weekday):
                         canIEnter = timecheck.isThisTheTime(schedules[REALsched]['time_start'], schedules[REALsched]['time_end'], current_time)
                         if canIEnter:
+                            changeLockState('unlock')
                             print("get in homie")
                             hasClassesToday = True
                             break
                         else:
+                            changeLockState('lock')
                             print("wait for your turn bozo")
                             hasClassesToday = True
                             break

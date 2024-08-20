@@ -1,10 +1,10 @@
-# from xdd import localMode
+from main import localMode
 import requests
 import json
 from timecheck import isThisTheTime
 from datetime import datetime
 def getCurrentSchedule():
-    localMode = True
+    # localMode = True
     now = datetime.now()
     current_time = now.strftime("%H:%M:%S")
     current_weekday = now.strftime('%A')
@@ -23,4 +23,3 @@ def getCurrentSchedule():
                 continue
         else:
             return {'status': 404}
-getCurrentSchedule()
