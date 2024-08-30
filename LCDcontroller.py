@@ -3,6 +3,7 @@ import time
 from threading import Thread
 from getCurrentSchedule import currentSchedule
 from internetCheck import localMode
+import json
 
 isUnauthorizedWarningUp = False
 isNoFacWarningUp = False
@@ -25,6 +26,16 @@ def lcdScreenController():
     global doesUserExit
     global section
     global isLCDconnected
+    try:
+        inst_presc = open('backup_data/instructor_prescence.json')
+        inst_parsed = json.load(inst_presc)
+        
+        if inst_parsed['isInstructorPresent'] == 1:
+            inst_status = 'Faculty is present'
+        else:
+            inst_status = 'Faculty is absent'
+    except:
+        inst_parsed = "lol"
     try:
         from RPLCD.i2c import CharLCD
 
@@ -63,8 +74,10 @@ def lcdScreenController():
                     try:
                         if sched_data["sched_type"] == "Event":
                             current_subject = "Guest Mode"
+                            inst_status = ""
                     except Exception:
                         current_subject = "Vacant"
+                        inst_status = ""
 
                 c = datetime.now()
                 if current_time != c.strftime("%b-%d %I:%M %p"):
@@ -77,15 +90,14 @@ def lcdScreenController():
                     lcd.write_string(current_subject)
                     lcd.cursor_pos = (2, 0)
                     lcd.write_string(current_faculty)
+                    lcd.cursor_pos = (3, 0)
+                    lcd.write_string(inst_status)
                     timeChanged = False
                 time.sleep(1)
             elif isUnauthorizedWarningUp:
                 returnToDefaultMsg = False
                 lcd.clear()
-                lcd.write_string("Unregistered card")
-                lcd.cursor_pos = (1, 0)
-                lcd.write_string("detected.")
-                lcd.cursor_pos = (2, 0)
+                lcd.cursor_pos = (0, 0)
                 lcd.write_string("Access denied!")
                 time.sleep(5)
                 isUnauthorizedWarningUp = False
