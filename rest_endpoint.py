@@ -2,6 +2,7 @@ from flask import Flask, json, jsonify, request
 from lock_state import changeLockState
 from internetCheck import isInternetUp
 from flask_cors import CORS, cross_origin
+from LCDcontroller import remotelyUnlocked
 import requests
 
 
@@ -17,6 +18,7 @@ def endpoint():
     def unlockDoor():
         changeLockState("unlock")
         print("Door unlocked successfully")
+        remotelyUnlocked()
         try:
             try:
                 data = open("backup_data/instructor_prescence.json")
