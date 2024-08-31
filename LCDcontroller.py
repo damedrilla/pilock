@@ -13,6 +13,7 @@ returnToDefaultMsg = True
 doesUserExit = False
 section = " "
 person_to_greet = ""
+remote = False
 isLCDconnected = False
 
 
@@ -26,16 +27,8 @@ def lcdScreenController():
     global doesUserExit
     global section
     global isLCDconnected
-    try:
-        inst_presc = open('backup_data/instructor_prescence.json')
-        inst_parsed = json.load(inst_presc)
-        
-        if inst_parsed['isInstructorPresent'] == 1:
-            inst_status = 'Faculty is present'
-        else:
-            inst_status = 'Faculty is absent'
-    except:
-        inst_parsed = "lol"
+    global remote
+
     try:
         from RPLCD.i2c import CharLCD
 
@@ -74,16 +67,27 @@ def lcdScreenController():
                     try:
                         if sched_data["sched_type"] == "Event":
                             current_subject = "Guest Mode"
-                            inst_status = ""
                     except Exception:
                         current_subject = "Vacant"
-                        inst_status = ""
 
                 c = datetime.now()
                 if current_time != c.strftime("%b-%d %I:%M %p"):
                     current_time = c.strftime("%b-%d %I:%M %p")
                     timeChanged = True
                 if timeChanged or returnToDefaultMsg:
+                    inst_status = ""
+                    try:
+                        inst_presc = open('backup_data/instructor_prescence.json')
+                        inst_parsed = json.load(inst_presc)
+                        print(inst_parsed)
+                        if inst_parsed['isInstructorPresent'] == 1:
+                            inst_status = "Faculty is present"
+                        else:
+                            inst_status = 'Faculty is absent'
+                    except Exception as e:
+                        print(e)
+                        if current_subject == "Vacant" or current_subject == "Guest Mode":
+                            inst_status = ""
                     lcd.clear()
                     lcd.write_string(current_time)
                     lcd.cursor_pos = (1, 0)
@@ -92,6 +96,7 @@ def lcdScreenController():
                     lcd.write_string(current_faculty)
                     lcd.cursor_pos = (3, 0)
                     lcd.write_string(inst_status)
+                
                     timeChanged = False
                 time.sleep(1)
             elif isUnauthorizedWarningUp:
@@ -130,6 +135,15 @@ def lcdScreenController():
                 time.sleep(5)
                 reg_user_tryna_enter = False
                 returnToDefaultMsg = True
+            elif remote:
+                returnToDefaultMsg = False
+                lcd.clear()
+                lcd.write_string("Remotely unlocked")
+                lcd.cursor_pos = (1,0)
+                lcd.write_string("Welcome!")
+                time.sleep(5)
+                remote = False
+                returnToDefaultMsg = True
             else:
                 time.sleep(1)
         except Exception:
@@ -164,3 +178,7 @@ def greetUser(firstName):
     global person_to_greet
     shouldGreet = True
     person_to_greet = firstName
+
+def remotelyUnlocked():
+    global remote
+    remote = True

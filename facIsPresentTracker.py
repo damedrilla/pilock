@@ -74,5 +74,8 @@ def tracker():
             time.sleep(1)
             state.close()
         except Exception as e:
-            print(e)
+            data = {"time_end": "", "isInstructorPresent": 0, "uid": "0"}
+            with open("backup_data/instructor_prescence.json", "w") as f:
+                json.dump(data, f)
+            f.close()
             time.sleep(1)
