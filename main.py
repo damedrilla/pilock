@@ -32,6 +32,9 @@ from guestModeTracker import guestMode_QuestionMark
 from facIsPresentTracker import tracker
 from exitEventListener import exitListener
 from openvpn import connectionSwitcher
+from facPrescenceController import changeFacultyPrescenceState, getFacultyPrescenceState, getAllPrescenceData
+import sqlite3
+import datetime
 
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename="pilock.log", encoding="utf-8", level=logging.INFO)
@@ -44,31 +47,6 @@ BASE_API_URL = "https://www.pilocksystem.live/api/"
 # operation if the user satisfies the authentication algorithms
 # even if the POST request for attendance fails.
 # You don't want them waiting for a while just for the door to open.
-def changeFacultyPrescenceState():
-    try:
-        data = open("backup_data/instructor_prescence.json")
-        data_parsed = json.load(data)
-        data_parsed["isInstructorPresent"] = 1
-        data.close()
-        with open("backup_data/instructor_prescence.json", "w") as f:
-            json.dump(data_parsed, f)
-            f.close()
-    except Exception as e:
-        print(e)
-        logger.critical("Error updating!")
-
-
-def getFacultyPrescenceState():
-    try:
-        data = open("backup_data/instructor_prescence.json")
-        data_parsed = json.load(data)
-        data.close()
-        try:
-            return data_parsed["isInstructorPresent"]
-        except Exception:
-            return 0
-    except Exception:
-        return 0
 
 
 def isFacultysTimeNow(name, uid):

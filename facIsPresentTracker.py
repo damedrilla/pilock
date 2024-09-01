@@ -3,6 +3,7 @@ from internetCheck import isInternetUp, localMode
 from timecheck import timeCheck
 from datetime import datetime
 from internetCheck import isInternetUp
+import sqlite3
 import requests
 import json
 import time
@@ -57,6 +58,7 @@ def tracker():
                 isCurrentScheduleOver = timeCheck(
                     "", "", "", time_end=_end, currTime=current_time
                 )
+                print(isCurrentScheduleOver)
             else:
                 curr_sched_end = ""
                 isCurrentScheduleOver = True
@@ -68,12 +70,27 @@ def tracker():
                     "isInstructorPresent": 0,
                     "uid": faculty_uid,
                 }
+                con = sqlite3.connect('allowed_students.db', isolation_level=None)
+                cur = con.cursor()
+                statement = "delete from authorized"
+                cur.execute(statement)
+                params = (curr_sched_end, faculty_uid, 1)
+                cur.execute("update inst_prescence set time_end = ?, isInstructorPresent = 0, uid = ?, time_in = '' where rowid = ?", params)
+                con.close()
                 with open("backup_data/instructor_prescence.json", "w") as f:
                     json.dump(data, f)
                     f.close()
             time.sleep(1)
             state.close()
         except Exception as e:
+            print(e)
+            con = sqlite3.connect('allowed_students.db', isolation_level=None)
+            cur = con.cursor()
+            statement = "delete from authorized"
+            cur.execute(statement)
+            params = ("", "", 1)
+            cur.execute("update inst_prescence set time_end = ?, isInstructorPresent = 0, uid = ?, time_in = '' where rowid = ?", params)
+            con.close()
             data = {"time_end": "", "isInstructorPresent": 0, "uid": "0"}
             with open("backup_data/instructor_prescence.json", "w") as f:
                 json.dump(data, f)

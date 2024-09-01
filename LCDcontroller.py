@@ -13,7 +13,7 @@ returnToDefaultMsg = True
 doesUserExit = False
 section = " "
 person_to_greet = ""
-remote = False
+remote_unlock = False
 isLCDconnected = False
 
 
@@ -27,7 +27,7 @@ def lcdScreenController():
     global doesUserExit
     global section
     global isLCDconnected
-    global remote
+    global remote_unlock
 
     try:
         from RPLCD.i2c import CharLCD
@@ -53,6 +53,7 @@ def lcdScreenController():
                 and not shouldGreet
                 and not reg_user_tryna_enter
                 and not doesUserExit
+                and not remote_unlock
             ):
                 try:
                     sched_data = currentSchedule()
@@ -80,12 +81,13 @@ def lcdScreenController():
                         inst_presc = open('backup_data/instructor_prescence.json')
                         inst_parsed = json.load(inst_presc)
                         print(inst_parsed)
-                        if inst_parsed['isInstructorPresent'] == 1:
+                        if current_subject == "Vacant" or current_subject == "Guest Mode":
+                            inst_status = ""
+                        elif inst_parsed['isInstructorPresent'] == 1:
                             inst_status = "Faculty is present"
                         else:
                             inst_status = 'Faculty is absent'
                     except Exception as e:
-                        print(e)
                         if current_subject == "Vacant" or current_subject == "Guest Mode":
                             inst_status = ""
                     lcd.clear()
@@ -135,14 +137,14 @@ def lcdScreenController():
                 time.sleep(5)
                 reg_user_tryna_enter = False
                 returnToDefaultMsg = True
-            elif remote:
+            elif remote_unlock:
                 returnToDefaultMsg = False
                 lcd.clear()
                 lcd.write_string("Remotely unlocked")
                 lcd.cursor_pos = (1,0)
                 lcd.write_string("Welcome!")
                 time.sleep(5)
-                remote = False
+                remote_unlock = False
                 returnToDefaultMsg = True
             else:
                 time.sleep(1)
@@ -180,5 +182,5 @@ def greetUser(firstName):
     person_to_greet = firstName
 
 def remotelyUnlocked():
-    global remote
-    remote = True
+    global remote_unlock
+    remote_unlock = True
