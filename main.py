@@ -192,7 +192,9 @@ def main():
     except:
         logger.warning("Failed to clear log files!")
 
-    __schedule.every().hour.at(":00").do(backup)
+    #__schedule.every().hour.at(":00").do(backup)
+    __schedule.every(5).minutes.do(backup)
+
     reader = SimpleMFRC522()
     while True:
         try:
