@@ -17,6 +17,7 @@ from LCDcontroller import (
     showNoFacultyYet,
     greetUser,
     showRegisteredButOutsideOfSchedule,
+    showLate
 )
 from backup import backup
 from getStudentData import getStudentData
@@ -142,6 +143,10 @@ def checkUser(id):
             changeLockState("lock")
             showNoFacultyYet(section)
             sayAbsent()
+        elif can_they_enter == 399:
+            changeLockState('lock')
+            showLate()
+            sayUnauthorized()
         elif registered:
             changeLockState("lock")
             showRegisteredButOutsideOfSchedule()

@@ -11,6 +11,7 @@ shouldGreet = False
 reg_user_tryna_enter = False
 returnToDefaultMsg = True
 doesUserExit = False
+isOverGracePeriod = False
 section = " "
 person_to_greet = ""
 remote_unlock = False
@@ -28,6 +29,7 @@ def lcdScreenController():
     global section
     global isLCDconnected
     global remote_unlock
+    global isOverGracePeriod
 
     try:
         from RPLCD.i2c import CharLCD
@@ -54,6 +56,7 @@ def lcdScreenController():
                 and not reg_user_tryna_enter
                 and not doesUserExit
                 and not remote_unlock
+                and not isOverGracePeriod
             ):
                 try:
                     sched_data = currentSchedule()
@@ -146,6 +149,17 @@ def lcdScreenController():
                 time.sleep(5)
                 remote_unlock = False
                 returnToDefaultMsg = True
+            elif isOverGracePeriod:
+                returnToDefaultMsg = False
+                lcd.clear()
+                lcd.write_string("15 mins grace period")
+                lcd.cursor_pos = (1,0)
+                lcd.write_string("has passed.")
+                lcd.cursor_pos = (2,0)
+                lcd.write_string("Access denied!")
+                time.sleep(5)
+                isOverGracePeriod = False
+                returnToDefaultMsg = True
             else:
                 time.sleep(1)
         except Exception:
@@ -184,3 +198,7 @@ def greetUser(firstName):
 def remotelyUnlocked():
     global remote_unlock
     remote_unlock = True
+
+def showLate():
+    global isOverGracePeriod
+    isOverGracePeriod = True

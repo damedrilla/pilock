@@ -24,6 +24,7 @@ def getFacultyPrescenceState():
         cur = con.cursor()
         cur.execute('select isInstructorPresent from inst_prescence where rowid = 1')
         row = cur.fetchone()
+        con.close()
         try:
             return row[0]
         except Exception:
@@ -39,7 +40,23 @@ def getAllPrescenceData():
         cur.execute('select uid, time_in, time_end, isInstructorPresent from inst_prescence where rowid = 1')
         row = cur.fetchone()
         pres['uid'] = row[0]; pres['time_in'] = row[1]; pres['time_end'] = row[2]; pres['isInstructorPresent'] = row[3]
+        con.close()
         return pres
     except:
         return {"uid": "", "time_in": "", "time_end": "", "isInstructorPresent": 0}
-print(getFacultyPrescenceState())
+
+def isStudentAllowedToEnter(uid):
+    try:
+        con = sqlite3.connect('allowed_students.db', isolation_level=None)
+        cur = con.cursor()
+        param = (uid,)
+        cur.execute("select COUNT(*) from authorized where uid = ?", param)
+        row = cur.fetchone()
+        con.close()
+        if row[0] != 0:
+            return True
+        else:
+            return False
+    except:
+        return False
+    
