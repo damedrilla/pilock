@@ -129,7 +129,7 @@ def checkUser(id):
         # 404 | 500 -> Not registered
         try:
             parseUser = getStudentData(uid)
-            section = parseUser["section"]
+            section = parseUser["program"]
             registered = True
         except:
             raise Exception("unregistered")

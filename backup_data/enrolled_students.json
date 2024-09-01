@@ -1,1 +1,1 @@
-{"status": 404, "status_message": "No EnrolledCourse Found"}
+{"enrolledCourses": [{"id": 1, "course_id": 1, "course_code": "CS2", "course_title": "Dribbling", "course_section": "BSIT 4E", "course_instructor": "Lebron James", "student_id": 1, "studentTag_uid": "2681593587", "student_number": "C21101188", "student_name": "Stephen Curry", "student_section": "BSIT 4E", "student_email": "sc@a"}]}

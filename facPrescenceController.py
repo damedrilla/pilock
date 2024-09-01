@@ -27,9 +27,11 @@ def getFacultyPrescenceState():
         con.close()
         try:
             return row[0]
-        except Exception:
+        except Exception as e:
+            print(e)
             return 0
-    except Exception:
+    except Exception as e:
+        print(e)
         return 0
     
 def getAllPrescenceData():

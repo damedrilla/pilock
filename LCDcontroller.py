@@ -3,6 +3,7 @@ import time
 from threading import Thread
 from getCurrentSchedule import currentSchedule
 from internetCheck import localMode
+from facPrescenceController import getFacultyPrescenceState
 import json
 
 isUnauthorizedWarningUp = False
@@ -81,12 +82,11 @@ def lcdScreenController():
                 if timeChanged or returnToDefaultMsg:
                     inst_status = ""
                     try:
-                        inst_presc = open('backup_data/instructor_prescence.json')
-                        inst_parsed = json.load(inst_presc)
-                        print(inst_parsed)
+                        inst_presc = getFacultyPrescenceState()
+                        print(inst_presc)
                         if current_subject == "Vacant" or current_subject == "Guest Mode":
                             inst_status = ""
-                        elif inst_parsed['isInstructorPresent'] == 1:
+                        elif inst_presc == 1:
                             inst_status = "Faculty is present"
                         else:
                             inst_status = 'Faculty is absent'

@@ -1,1 +1,1 @@
-{"status": 404, "status_message": "No Students Found"}
+{"students": [{"id": 1, "student_id": "C21101188", "tag_uid": "2681593587", "name": "Stephen Curry", "program": "BSIT", "year": "4", "block": "E", "birthdate": "1993-03-05", "avatar": null}]}

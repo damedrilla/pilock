@@ -3,6 +3,7 @@ from internetCheck import isInternetUp, localMode
 from timecheck import timeCheck
 from datetime import datetime
 from internetCheck import isInternetUp
+from facPrescenceController import getAllPrescenceData
 import sqlite3
 import requests
 import json
@@ -48,9 +49,8 @@ def tracker():
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
         try:
-            state = open("backup_data/instructor_prescence.json")
-            parsed_state = json.load(state)
-            _end = parsed_state["time_end"]
+            state = getAllPrescenceData()
+            _end = state["time_end"]
             curr_sched = currentSchedule()
             if curr_sched["code"] == 200:
                 curr_sched_end = curr_sched["time_end"]
@@ -58,7 +58,6 @@ def tracker():
                 isCurrentScheduleOver = timeCheck(
                     "", "", "", time_end=_end, currTime=current_time
                 )
-                print(isCurrentScheduleOver)
             else:
                 curr_sched_end = ""
                 isCurrentScheduleOver = True
@@ -77,11 +76,7 @@ def tracker():
                 params = (curr_sched_end, faculty_uid, 1)
                 cur.execute("update inst_prescence set time_end = ?, isInstructorPresent = 0, uid = ?, time_in = '' where rowid = ?", params)
                 con.close()
-                with open("backup_data/instructor_prescence.json", "w") as f:
-                    json.dump(data, f)
-                    f.close()
             time.sleep(1)
-            state.close()
         except Exception as e:
             print(e)
             con = sqlite3.connect('allowed_students.db', isolation_level=None)
