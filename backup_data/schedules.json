@@ -1,1 +1,1 @@
-{"schedules": [{"id": 7, "course_title": "Dribbling", "instructor": "Lebron James", "section": "BSIT 4E", "days": "Sunday", "time_start": "17:30:00", "time_end": "18:05:00"}, {"id": 8, "course_title": "Dribbling", "instructor": "Lebron James", "section": "BSIT 4E", "days": "Sunday", "time_start": "18:06:00", "time_end": "18:30:00"}]}
+{"status": 404, "status_message": "No Schedules Found"}
