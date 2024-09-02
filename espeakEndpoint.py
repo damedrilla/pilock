@@ -28,6 +28,7 @@ def endpoint():
     @api.route('/chime', methods=['GET'])
     def chime():
         os.system('play -n synth 3 sin 960 fade l 0 3 2.8 trim 0 1')
+        return json.dumps({"ear_destroyed": True}), 200
     
     @api.route("/faculty_absent", methods=['GET'])
     def absent():
