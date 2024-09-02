@@ -166,3 +166,4 @@ getschedtest2.py
 RPLCD/
 mfrc522.py
 isitjson.py
+.db-journal
