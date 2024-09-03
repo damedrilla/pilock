@@ -1,1 +1,1 @@
-{"status": 404, "status_message": "No Courses Found"}
+{"courses": [{"id": 1, "course_code": "MT1", "course_title": "Mobile Technology 1", "section": "BSIT 2A", "instructor": "Philip Alger Serrano"}]}

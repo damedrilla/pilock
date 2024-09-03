@@ -151,9 +151,11 @@ def checkUser(id):
             changeLockState("lock")
             showRegisteredButOutsideOfSchedule()
             sayUnauthorized()
-        else:
+        elif can_they_enter == 404 and registered:
             changeLockState("lock")
-            raise Exception("nah dude")
+            showRegisteredButOutsideOfSchedule()
+            sayUnauthorized()
+            
         isStudent = True
         logger.debug("ID holder is a student!")
     except Exception as e:

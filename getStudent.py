@@ -33,6 +33,7 @@ def getStudent(uid):
         # 403 -> Not enrolled
         # 404 | 500 -> Not registered
         try:
+            # print("auth" + str(checkIfAuthorized(uid)))
             if checkIfAuthorized(uid) == 200:
                 students_list = requests.post(
                     "https://www.pilocksystem.live/api/attendstud/"
@@ -66,11 +67,15 @@ def getStudent(uid):
                 return 399
             elif checkIfAuthorized(uid) == 403:
                 return 403
+            elif checkIfAuthorized(uid) == 401:
+                return 401
             elif checkIfAuthorized(uid) == 500:
                 return 500
         except Exception as e:
             print(e)
             return 500
+        print('bottom')
+        return 500
     elif localMode:
         try:
             uid = str(uid).zfill(10)
@@ -131,18 +136,22 @@ def getStudent(uid):
                     return 404
         except Exception as e:
             return 404
+        return 404
 
 
 def checkIfAuthorized(uid):
     uid = str(uid)
-    if isStudentEnrolled(uid) == 500:
-        return 500
-    elif isStudentEnrolled(uid) == 403:
-        return 403
-    elif isStudentAllowedToEnter(str(uid).zfill(10)):
+    # if isStudentEnrolled(uid) == 500:
+    #     return 500
+    # elif isStudentEnrolled(uid) == 403:
+    #     return 403
+    if isStudentAllowedToEnter(str(uid).zfill(10)):
+        print('already in database!')
         return 200
     else:
         fac_all_data = getAllPrescenceData()
+        if fac_all_data['isInstructorPresent'] == 0:
+            return 401
         curr_time = str(datetime.datetime.now().time().replace(microsecond=0))
         if isBludNotLate(curr_time, fac_all_data["time_in"]):
             try:
@@ -158,25 +167,25 @@ def checkIfAuthorized(uid):
             return 399
 
 
-def isStudentEnrolled(uid):
-    course_id = getCourseID()
-    data = getStudentData(uid)
-    enrolled_stud = getEnrolledStudents()
-    if data["status"] == 404:
-        return 500
-    try:
-        if enrolled_stud["status"] == 404:
-            return 404
-    except:
-        pass
-    for _students in range(len(enrolled_stud)):
-        try:
-            if (
-                uid == enrolled_stud[_students]["studentTag_uid"]
-                and course_id == enrolled_stud[_students]["course_id"]
-            ):
-                return 200
-        except Exception as e:
-            print(e)
-            continue
-    return 403
+# def isStudentEnrolled(uid):
+#     course_id = getCourseID()
+#     data = getStudentData(uid)
+#     enrolled_stud = getEnrolledStudents()
+#     if data["status"] == 404:
+#         return 500
+#     try:
+#         if enrolled_stud["status"] == 404:
+#             return 404
+#     except:
+#         pass
+#     for _students in range(len(enrolled_stud)):
+#         try:
+#             if (
+#                 uid == enrolled_stud[_students]["studentTag_uid"]
+#                 and course_id == enrolled_stud[_students]["course_id"]
+#             ):
+#                 return 200
+#         except Exception as e:
+#             print(e)
+#             continue
+#     return 403

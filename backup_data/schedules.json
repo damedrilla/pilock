@@ -1,1 +1,1 @@
-{"status": 404, "status_message": "No Schedules Found"}
+{"schedules": [{"id": 2, "course_title": "Mobile Technology 1", "instructor": "Philip Alger Serrano", "section": "BSIT 2A", "days": "Tuesday", "time_start": "14:21:00", "time_end": "15:00:00"}]}
