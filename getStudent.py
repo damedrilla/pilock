@@ -138,16 +138,40 @@ def getStudent(uid):
             return 404
         return 404
 
+def isStudentEnrolled(uid):
+    course_id = getCourseID()
+    # data = getStudentData(uid)
+    enrolled_stud = getEnrolledStudents()
+    # if data["status"] == 404:
+    #     return 500
+    try:
+        if enrolled_stud["status"] == 404:
+            return 404
+    except:
+        pass
+    for _students in range(len(enrolled_stud)):
+        try:
+            if (
+                uid == enrolled_stud[_students]["studentTag_uid"]
+                and course_id == enrolled_stud[_students]["course_id"]
+            ):
+                return 200
+        except Exception as e:
+            print(e)
+            continue
+    return 403
 
 def checkIfAuthorized(uid):
     uid = str(uid)
-    # if isStudentEnrolled(uid) == 500:
-    #     return 500
-    # elif isStudentEnrolled(uid) == 403:
-    #     return 403
+    enroll_status = isStudentEnrolled(uid)
+    
     if isStudentAllowedToEnter(str(uid).zfill(10)):
         print('already in database!')
         return 200
+    elif enroll_status == 500:
+        return 500
+    elif enroll_status == 403:
+        return 403
     else:
         fac_all_data = getAllPrescenceData()
         if fac_all_data['isInstructorPresent'] == 0:
@@ -167,25 +191,3 @@ def checkIfAuthorized(uid):
             return 399
 
 
-# def isStudentEnrolled(uid):
-#     course_id = getCourseID()
-#     data = getStudentData(uid)
-#     enrolled_stud = getEnrolledStudents()
-#     if data["status"] == 404:
-#         return 500
-#     try:
-#         if enrolled_stud["status"] == 404:
-#             return 404
-#     except:
-#         pass
-#     for _students in range(len(enrolled_stud)):
-#         try:
-#             if (
-#                 uid == enrolled_stud[_students]["studentTag_uid"]
-#                 and course_id == enrolled_stud[_students]["course_id"]
-#             ):
-#                 return 200
-#         except Exception as e:
-#             print(e)
-#             continue
-#     return 403

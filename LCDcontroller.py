@@ -83,7 +83,6 @@ def lcdScreenController():
                     inst_status = ""
                     try:
                         inst_presc = getFacultyPrescenceState()
-                        print(inst_presc)
                         if current_subject == "Vacant" or current_subject == "Guest Mode":
                             inst_status = ""
                         elif inst_presc == 1:
@@ -115,7 +114,9 @@ def lcdScreenController():
             elif isNoFacWarningUp:
                 returnToDefaultMsg = False
                 lcd.clear()
-                lcd.write_string(section + "'s faculty isn't here yet!")
+                lcd.write_string("No faculty is present!")
+                lcd.cursor_pos = (1, 0)
+                lcd.write_string("Access denied!")
                 time.sleep(5)
                 isNoFacWarningUp = False
                 returnToDefaultMsg = True

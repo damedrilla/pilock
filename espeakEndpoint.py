@@ -15,7 +15,7 @@ def endpoint():
     
     @api.route('/deny', methods=["GET"])
     def deny():
-        os.system('play -n synth 3 sin 960 synth 3 sin fmod 1920 fade l 0 3 2.8 trim 0 1 repeat 3')
+        os.system('play -n synth 3 sin 960 synth 3 sin fmod 1920 fade l 0 3 2.8 trim 0 1 repeat 2')
         os.system('espeak -v en "access denied" --stdout | aplay')
         return json.dumps({"denied": True}), 200
     

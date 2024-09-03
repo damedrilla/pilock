@@ -192,7 +192,7 @@ def main():
     try:
         open("pilock.log", "w").close()
     except:
-        logger.warning("Failed to clear log files!")
+        logger.warning("Failed to clear log file!")
 
     #__schedule.every().hour.at(":00").do(backup)
     __schedule.every(5).minutes.do(backup)
@@ -208,9 +208,7 @@ def main():
             big_endian.reverse()
             little_endian = "".join(f"{n:02X}" for n in big_endian)
             logger.info(
-                "User ID "
-                + str(cardData)
-                + " scanned and converted to little endian ID of: "
+                "Card detected! UID: "
                 + str(int(little_endian, 16))
             )
             chime()
