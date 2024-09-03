@@ -147,7 +147,7 @@ def checkUser(id):
             changeLockState('lock')
             showLate()
             sayUnauthorized()
-        elif registered:
+        elif can_they_enter == 403:
             changeLockState("lock")
             showRegisteredButOutsideOfSchedule()
             sayUnauthorized()

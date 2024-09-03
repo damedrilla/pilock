@@ -8,6 +8,7 @@ from getCourseID import getCourseID
 # as the one we see in this system's web API to ensure smooth
 # operation during production use.
 def getStudentData(uid):
+    uid = str(uid)
     localMode = isInternetUp()
     if not localMode:
         # Students registered without an ID card has a value of null in tag_uid key
@@ -22,11 +23,13 @@ def getStudentData(uid):
                     # remove leading zeroes again askljdbhsdhgasd
                     uid_no_lead = int(uuid)
                     if str(uid) == str(uid_no_lead):
-                        return stud_json["students"][index]
+                        stud_data = stud_json["students"][index]
+                        stud_data['status'] = 200
+                        return stud_data
                 except Exception:
                     continue
         except Exception as e:
-            return {"status": 500}
+            return {"status": 404}
     elif localMode:
         try:
             stud_bak = open("backup_data/students.json")
@@ -37,8 +40,12 @@ def getStudentData(uid):
                     uid_no_lead = int(uuid)
                     # print(uid_no_lead)
                     if str(uid) == str(uid_no_lead):
-                        return stud_json["students"][index]
+                        stud_data = stud_json["students"][index]
+                        stud_data['status'] = 200
+                        return stud_data
                 except Exception:
                     continue
         except Exception as e:
+            print(e)
             return {"status": 404}
+    return {"status": 404}

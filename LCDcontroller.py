@@ -136,7 +136,11 @@ def lcdScreenController():
             elif reg_user_tryna_enter:
                 returnToDefaultMsg = False
                 lcd.clear()
-                lcd.write_string("You can't enter right now, it's not your time yet!")
+                lcd.write_string("Not your time yet!")
+                lcd.cursor_pos = (1,0)
+                lcd.write_string("Come back again in")
+                lcd.cursor_pos = (2,0)
+                lcd.write_string("your scheduled time")
                 time.sleep(5)
                 reg_user_tryna_enter = False
                 returnToDefaultMsg = True

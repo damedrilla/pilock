@@ -1,1 +1,46 @@
-{"status": 404, "status_message": "No EnrolledCourse Found"}
+{
+  "enrolledCourses": [
+    {
+      "id": 1,
+      "course_id": 1,
+      "course_code": "MT1",
+      "course_title": "Mobile Technology 1",
+      "course_section": "BSIT 2A",
+      "course_instructor": "Philip Alger Serrano",
+      "student_id": 1,
+      "studentTag_uid": "8878888",
+      "student_number": "C21101188",
+      "student_name": "Alfred Joseph Baltazar",
+      "student_section": "BSIT 2A",
+      "student_email": "albaltazar@my.cspc.edu.ph"
+    },
+    {
+        "id": 2,
+        "course_id": 1,
+        "course_code": "MT1",
+        "course_title": "Mobile Technology 1",
+        "course_section": "BSIT 2A",
+        "course_instructor": "Philip Alger Serrano",
+        "student_id": 1,
+        "studentTag_uid": null,
+        "student_number": "C21101188",
+        "student_name": "Alfred Joseph Baltazar",
+        "student_section": "BSIT 2A",
+        "student_email": "albaltazar@my.cspc.edu.ph"
+    },
+    {
+        "id": 2,
+        "course_id": 1,
+        "course_code": "MT1",
+        "course_title": "Mobile Technology 1",
+        "course_section": "BSIT 2A",
+        "course_instructor": "Philip Alger Serrano",
+        "student_id": 1,
+        "studentTag_uid": "322",
+        "student_number": "C21101188",
+        "student_name": "Alfred Joseph Baltazar",
+        "student_section": "BSIT 2A",
+        "student_email": "albaltazar@my.cspc.edu.ph"
+    }
+  ]
+}
