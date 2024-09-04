@@ -34,7 +34,8 @@ def getStudent(uid):
         # 404 | 500 -> Not registered
         try:
             # print("auth" + str(checkIfAuthorized(uid)))
-            if checkIfAuthorized(uid) == 200:
+            auth_code = checkIfAuthorized(uid)
+            if auth_code == 200:
                 students_list = requests.post(
                     "https://www.pilocksystem.live/api/attendstud/"
                     + uid,
@@ -63,13 +64,13 @@ def getStudent(uid):
                     return 403
                 else:
                     return 404
-            elif checkIfAuthorized(uid) == 399:
+            elif auth_code == 399:
                 return 399
-            elif checkIfAuthorized(uid) == 403:
+            elif auth_code == 403:
                 return 403
-            elif checkIfAuthorized(uid) == 401:
+            elif auth_code == 401:
                 return 401
-            elif checkIfAuthorized(uid) == 500:
+            elif auth_code == 500:
                 return 500
         except Exception as e:
             print(e)
@@ -163,15 +164,15 @@ def isStudentEnrolled(uid):
 
 def checkIfAuthorized(uid):
     uid = str(uid)
-    enroll_status = isStudentEnrolled(uid)
+    # enroll_status = isStudentEnrolled(uid)
     
     if isStudentAllowedToEnter(str(uid).zfill(10)):
         print('already in database!')
         return 200
-    elif enroll_status == 500:
-        return 500
-    elif enroll_status == 403:
-        return 403
+    # elif enroll_status == 500:
+    #     return 500
+    # elif enroll_status == 403:
+    #     return 403
     else:
         fac_all_data = getAllPrescenceData()
         if fac_all_data['isInstructorPresent'] == 0:

@@ -6,12 +6,13 @@ import coloredlogs, logging
 logger = logging.getLogger(__name__)
 logging.basicConfig(filename='pilock.log', encoding='utf-8', level=logging.INFO)
 coloredlogs.install(level="DEBUG", logger=logger)
-def changeFacultyPrescenceState():
+def changeFacultyPrescenceState(uid):
     try:
+        uid = str(uid).zfill(10)
         con = sqlite3.connect('allowed_students.db', isolation_level=None)
         cur = con.cursor()
-        param = (str(datetime.datetime.now().time().replace(microsecond=0)),)
-        cur.execute("update inst_prescence set isInstructorPresent = 1, time_in = ? where rowid = 1", param)
+        param = (uid, str(datetime.datetime.now().time().replace(microsecond=0)))
+        cur.execute("update inst_prescence set uid = ?, isInstructorPresent = 1, time_in = ? where rowid = 1", param)
         con.close()
     except Exception as e:
         print(e)

@@ -17,7 +17,8 @@ from LCDcontroller import (
     showNoFacultyYet,
     greetUser,
     showRegisteredButOutsideOfSchedule,
-    showLate
+    showLate,
+    welcome
 )
 from backup import backup
 from getStudentData import getStudentData
@@ -28,6 +29,7 @@ from espeakEventListener import (
     welcomeUser,
     chime,
     sayAbsent,
+    
 )
 from guestModeTracker import guestMode_QuestionMark
 from facIsPresentTracker import tracker
@@ -67,15 +69,14 @@ def isFacultysTimeNow(name, uid):
 
     try:
         if sc_parsed["instructor"] == name:
-            changeLockState("unlock")
             greetUser(name)
             welcomeUser(name)
+            changeLockState("unlock")
             # os.system('/usr/bin/espeak "{}"'.format(speech))
             try:
                 req = requests.post(
                     BASE_API_URL + "attendinst/" + str(uid).zfill(10), timeout=5
                 )
-                logger.info(print(json.loads(req.text)))
             except Exception:
                 pass
             if getFacultyPrescenceState() == 0:
@@ -83,10 +84,9 @@ def isFacultysTimeNow(name, uid):
                     "Faculty detected. Students can now scan their ID until "
                     + str(sc["time_end"])
                 )
-                changeFacultyPrescenceState()
+                changeFacultyPrescenceState(uid)
             else:
                 logger.info("Faculty already present. No scheduling needed.")
-                welcomeUser(name)
                 # os.system('/usr/bin/espeak "{}"'.format(speech))
         else:
             changeLockState("lock")
@@ -105,12 +105,15 @@ def isFacultysTimeNow(name, uid):
 
 def checkUser(id):
     # Make sure leading zeroes are gone
-    uid = int(id)
+    uid = str(id).zfill(10)
     parseUser = []
     isStudent = False
     isInstructor = False
     registered = False
+    curr_inst_uid = getAllPrescenceData()['uid']
+    isInstructorPresent = getFacultyPrescenceState()
     guestMode = guestMode_QuestionMark()
+    
     if guestMode:
         sayGuestMode()
         time.sleep(0.5)
@@ -132,7 +135,7 @@ def checkUser(id):
             section = parseUser["program"]
             registered = True
         except:
-            raise Exception("unregistered")
+            raise Exception(logger.warning("Skipping student check"))
         can_they_enter = getStudent(uid)
         print(can_they_enter)
         if can_they_enter == 200:
@@ -161,21 +164,26 @@ def checkUser(id):
     except Exception as e:
         print(e)
         try:
-            parseUser = getFaculty(uid)
-            parseUser["instructor_name"]
-            isInstructor = True
-            logger.debug("ID holder is a faculty!")
+            if isInstructorPresent == 1:
+                if curr_inst_uid == uid:
+                  changeLockState("unlock")
+                  welcome()
+                  return
+            else:
+                parseUser = getFaculty(uid)
+                parseUser["instructor_name"]
+                isInstructor = True
+                logger.debug("ID holder is a faculty!")
         except Exception as e:
             changeLockState("lock")
             sayUnauthorized()
             logger.warning("ID holder is not registered!")
             showUnauthorized()
 
-    if isStudent:
-        # isStudAllowedtoEnter(parseUser["section"], uid, parseUser["name"])
-        return
-    elif isInstructor:
+    if isInstructor:
         isFacultysTimeNow(parseUser["instructor_name"], uid)
+    else:
+        return
 
 
 # Run any pending scheduled task, if there's any.
@@ -189,11 +197,6 @@ def runscheduled():
 
 def main():
     # Clear log file on start
-    try:
-        open("pilock.log", "w").close()
-    except:
-        logger.warning("Failed to clear log file!")
-
     #__schedule.every().hour.at(":00").do(backup)
     __schedule.every(5).minutes.do(backup)
 

@@ -17,7 +17,7 @@ section = " "
 person_to_greet = ""
 remote_unlock = False
 isLCDconnected = False
-
+justSayWelcome = False
 
 def lcdScreenController():
     global isUnauthorizedWarningUp
@@ -31,7 +31,8 @@ def lcdScreenController():
     global isLCDconnected
     global remote_unlock
     global isOverGracePeriod
-
+    global justSayWelcome
+    
     try:
         from RPLCD.i2c import CharLCD
 
@@ -58,6 +59,7 @@ def lcdScreenController():
                 and not doesUserExit
                 and not remote_unlock
                 and not isOverGracePeriod
+                and not justSayWelcome
             ):
                 try:
                     sched_data = currentSchedule()
@@ -67,7 +69,7 @@ def lcdScreenController():
                 current_faculty = ""
                 try:
                     current_subject = sched_data["course_title"]
-                    current_faculty = sched_data["instructor"]
+                    block = sched_data["section"]
                 except Exception:
                     try:
                         if sched_data["sched_type"] == "Event":
@@ -97,18 +99,16 @@ def lcdScreenController():
                     lcd.cursor_pos = (1, 0)
                     lcd.write_string(current_subject)
                     lcd.cursor_pos = (2, 0)
-                    lcd.write_string(current_faculty)
-                    lcd.cursor_pos = (3, 0)
-                    lcd.write_string(inst_status)
+                    lcd.write_string(block)
                 
                     timeChanged = False
-                time.sleep(1)
+                time.sleep(0.5)
             elif isUnauthorizedWarningUp:
                 returnToDefaultMsg = False
                 lcd.clear()
                 lcd.cursor_pos = (0, 0)
                 lcd.write_string("Access denied!")
-                time.sleep(5)
+                time.sleep(1.5)
                 isUnauthorizedWarningUp = False
                 returnToDefaultMsg = True
             elif isNoFacWarningUp:
@@ -117,32 +117,30 @@ def lcdScreenController():
                 lcd.write_string("No faculty is present!")
                 lcd.cursor_pos = (1, 0)
                 lcd.write_string("Access denied!")
-                time.sleep(5)
+                time.sleep(1.5)
                 isNoFacWarningUp = False
                 returnToDefaultMsg = True
             elif shouldGreet:
                 returnToDefaultMsg = False
                 lcd.clear()
                 lcd.write_string("Welcome! " + person_to_greet)
-                time.sleep(5)
+                time.sleep(1.5)
                 shouldGreet = False
                 returnToDefaultMsg = True
             elif doesUserExit:
                 returnToDefaultMsg = False
                 lcd.clear()
                 lcd.write_string("Thank you, come again!")
-                time.sleep(5)
+                time.sleep(1.5)
                 doesUserExit = False
                 returnToDefaultMsg = True
             elif reg_user_tryna_enter:
                 returnToDefaultMsg = False
                 lcd.clear()
-                lcd.write_string("Not your time yet!")
+                lcd.write_string("Sorry, ")
                 lcd.cursor_pos = (1,0)
-                lcd.write_string("Come back again in")
-                lcd.cursor_pos = (2,0)
-                lcd.write_string("your scheduled time")
-                time.sleep(5)
+                lcd.write_string("Not your time yet!")
+                time.sleep(1.5)
                 reg_user_tryna_enter = False
                 returnToDefaultMsg = True
             elif remote_unlock:
@@ -151,7 +149,7 @@ def lcdScreenController():
                 lcd.write_string("Remotely unlocked")
                 lcd.cursor_pos = (1,0)
                 lcd.write_string("Welcome!")
-                time.sleep(5)
+                time.sleep(1.5)
                 remote_unlock = False
                 returnToDefaultMsg = True
             elif isOverGracePeriod:
@@ -162,8 +160,15 @@ def lcdScreenController():
                 lcd.write_string("has passed.")
                 lcd.cursor_pos = (2,0)
                 lcd.write_string("Access denied!")
-                time.sleep(5)
+                time.sleep(1.5)
                 isOverGracePeriod = False
+                returnToDefaultMsg = True
+            elif justSayWelcome:
+                returnToDefaultMsg = False
+                lcd.clear()
+                lcd.write_string("Welcome, faculty!")
+                time.sleep(1.5)
+                justSayWelcome = False
                 returnToDefaultMsg = True
             else:
                 time.sleep(1)
@@ -207,3 +212,7 @@ def remotelyUnlocked():
 def showLate():
     global isOverGracePeriod
     isOverGracePeriod = True
+
+def welcome():
+    global justSayWelcome
+    justSayWelcome = True

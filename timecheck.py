@@ -61,7 +61,7 @@ def isBludNotLate(stud_scan_time, faculty_log_in_time):
         
         scan_time = datetime.time(int(scan_time_arr[0]), int(scan_time_arr[1]), int(scan_time_arr[2]))
         log_in_time = datetime.time(int(log_in_time_arr[0]), int(log_in_time_arr[1]), int(log_in_time_arr[2]))
-        xv_mins = 60 * 2
+        xv_mins = 60 * 30
         xv_mins_after = addSecs(log_in_time, xv_mins)
         return scan_time <= xv_mins_after
     except:

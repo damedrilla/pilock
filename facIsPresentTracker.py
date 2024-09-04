@@ -64,19 +64,22 @@ def tracker():
                 faculty_uid = 0
 
             if isCurrentScheduleOver:
-                data = {
-                    "time_end": curr_sched_end,
-                    "isInstructorPresent": 0,
-                    "uid": faculty_uid,
-                }
-                con = sqlite3.connect('allowed_students.db', isolation_level=None)
-                cur = con.cursor()
-                statement = "delete from authorized"
-                cur.execute(statement)
-                params = (curr_sched_end, faculty_uid, 1)
-                cur.execute("update inst_prescence set time_end = ?, isInstructorPresent = 0, uid = ?, time_in = '' where rowid = ?", params)
-                con.close()
-            time.sleep(1)
+                #verify if schedule has actually ended, 
+                #or the internet is just being wacky lole
+                isItActuallyOver = timeCheck(
+                    "", "", "", time_end=state['time_end'], currTime=current_time
+                )
+                if not isItActuallyOver:
+                    time.sleep(1)
+                else:
+                    con = sqlite3.connect('allowed_students.db', isolation_level=None)
+                    cur = con.cursor()
+                    statement = "delete from authorized"
+                    cur.execute(statement)
+                    params = (curr_sched_end, faculty_uid, 1)
+                    cur.execute("update inst_prescence set time_end = ?, isInstructorPresent = 0, uid = ?, time_in = '' where rowid = ?", params)
+                    con.close()
+                    time.sleep(1)
         except Exception as e:
             print(e)
             con = sqlite3.connect('allowed_students.db', isolation_level=None)
@@ -86,8 +89,4 @@ def tracker():
             params = ("", "", 1)
             cur.execute("update inst_prescence set time_end = ?, isInstructorPresent = 0, uid = ?, time_in = '' where rowid = ?", params)
             con.close()
-            data = {"time_end": "", "isInstructorPresent": 0, "uid": "0"}
-            with open("backup_data/instructor_prescence.json", "w") as f:
-                json.dump(data, f)
-            f.close()
             time.sleep(1)
