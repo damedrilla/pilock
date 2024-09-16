@@ -53,7 +53,7 @@ def isStudentAllowedToEnter(uid):
         con = sqlite3.connect('allowed_students.db', isolation_level=None)
         cur = con.cursor()
         param = (uid,)
-        cur.execute("select COUNT(*) from authorized where uid = ?", param)
+        cur.execute("select * from authorized where uid = ?", param)
         row = cur.fetchone()
         con.close()
         if row[0] != 0:

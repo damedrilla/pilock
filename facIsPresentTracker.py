@@ -8,7 +8,7 @@ import sqlite3
 import requests
 import json
 import time
-
+import re
 
 def getFacUID(name):
     localMode = isInternetUp()
@@ -48,6 +48,7 @@ def tracker():
     while True:
         now = datetime.now()
         current_time = now.strftime("%H:%M:%S")
+        reg_time = re.compile(r'^([0-1]?\d|2[0-3])(?::([0-5]?\d))?(?::([0-5]?\d))?$')
         try:
             state = getAllPrescenceData()
             _end = state["time_end"]
@@ -69,7 +70,7 @@ def tracker():
                 isItActuallyOver = timeCheck(
                     "", "", "", time_end=state['time_end'], currTime=current_time
                 )
-                if not isItActuallyOver:
+                if not isItActuallyOver and bool(reg_time.match(curr_sched_end)):
                     time.sleep(1)
                 else:
                     con = sqlite3.connect('allowed_students.db', isolation_level=None)

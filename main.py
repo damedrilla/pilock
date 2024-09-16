@@ -36,6 +36,7 @@ from facIsPresentTracker import tracker
 from exitEventListener import exitListener
 from openvpn import connectionSwitcher
 from facPrescenceController import changeFacultyPrescenceState, getFacultyPrescenceState, getAllPrescenceData
+from essential_data_sync import esse_sync
 import sqlite3
 import datetime
 
@@ -105,6 +106,7 @@ def isFacultysTimeNow(name, uid):
 
 def checkUser(id):
     # Make sure leading zeroes are gone
+    start_time = time.time()
     uid = str(id).zfill(10)
     parseUser = []
     isStudent = False
@@ -132,7 +134,6 @@ def checkUser(id):
         # 404 | 500 -> Not registered
         try:
             parseUser = getStudentData(id)
-            print(parseUser)
             section = parseUser["program"]
             registered = True
         except:
@@ -185,7 +186,9 @@ def checkUser(id):
 
     if isInstructor:
         isFacultysTimeNow(parseUser["instructor_name"], uid)
+        print("--- %s seconds ---" % (time.time() - start_time))
     else:
+        print("--- %s seconds ---" % (time.time() - start_time))
         return
 
 
@@ -201,7 +204,8 @@ def runscheduled():
 def main():
     # Clear log file on start
     #__schedule.every().hour.at(":00").do(backup)
-    __schedule.every(5).minutes.do(backup)
+    # __schedule.every(5).minutes.do(backup)
+    __schedule.every(5).seconds.do(esse_sync)
     try:
         open('pilock.log', 'w').close()
     except:
@@ -224,7 +228,7 @@ def main():
         except KeyboardInterrupt:
             GPIO.cleanup()
         except:
-            GPIO.cleanup()
+            time.sleep(1)
 
         # Uncomment below and comment the try-catch block above
         # if testing in windows PC

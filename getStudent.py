@@ -12,7 +12,8 @@ from getStudentData import getStudentData
 from getEnrolledStudents import getEnrolledStudents
 import datetime
 import sqlite3
-
+import time
+sesh = requests.Session()
 
 # The goal of this method is to make sure that regardless of
 # internet connection availability, the output must be as similar
@@ -20,6 +21,7 @@ import sqlite3
 # operation during production use.
 def getStudent(uid):
     localMode = isInternetUp()
+    # localMode = False
     uid = str(uid).zfill(10)
     if not localMode:
         # Students registered without an ID card has a value of null in tag_uid key
@@ -36,7 +38,7 @@ def getStudent(uid):
             # print("auth" + str(checkIfAuthorized(uid)))
             auth_code = checkIfAuthorized(uid)
             if auth_code == 200:
-                students_list = requests.post(
+                students_list = sesh.post(
                     "https://www.pilocksystem.live/api/attendstud/"
                     + uid,
                     timeout=2,
@@ -50,7 +52,7 @@ def getStudent(uid):
                         # In case that the instructor becomes present while there's no internet
                         # and the student authenticated after the internet connectivity returns back
                         try:
-                            requests.post(
+                            sesh.post(
                                 "https://www.pilocksystem.live/api/attendinst/"
                                 + str(fac_all_data["uid"]).zfill(10),
                                 timeout=2,
@@ -64,6 +66,8 @@ def getStudent(uid):
                     return 403
                 else:
                     return 404
+            elif auth_code == 201:
+                return 200
             elif auth_code == 399:
                 return 399
             elif auth_code == 403:
@@ -139,40 +143,14 @@ def getStudent(uid):
             return 404
         return 404
 
-def isStudentEnrolled(uid):
-    course_id = getCourseID()
-    # data = getStudentData(uid)
-    enrolled_stud = getEnrolledStudents()
-    # if data["status"] == 404:
-    #     return 500
-    try:
-        if enrolled_stud["status"] == 404:
-            return 404
-    except:
-        pass
-    for _students in range(len(enrolled_stud)):
-        try:
-            if (
-                uid == enrolled_stud[_students]["studentTag_uid"]
-                and course_id == enrolled_stud[_students]["course_id"]
-            ):
-                return 200
-        except Exception as e:
-            print(e)
-            continue
-    return 403
 
 def checkIfAuthorized(uid):
     uid = str(uid)
     # enroll_status = isStudentEnrolled(uid)
-    
+    print(isStudentAllowedToEnter(str(uid).zfill(10)))
     if isStudentAllowedToEnter(str(uid).zfill(10)):
         print('already in database!')
         return 200
-    # elif enroll_status == 500:
-    #     return 500
-    # elif enroll_status == 403:
-    #     return 403
     else:
         fac_all_data = getAllPrescenceData()
         if fac_all_data['isInstructorPresent'] == 0:
@@ -190,5 +168,3 @@ def checkIfAuthorized(uid):
             return 200
         else:
             return 399
-
-
