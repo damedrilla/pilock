@@ -66,7 +66,7 @@ def lcdScreenController():
                 except Exception:
                     continue
                 current_subject = ""
-                current_faculty = ""
+                block = ""
                 try:
                     current_subject = sched_data["course_title"]
                     block = sched_data["section"]

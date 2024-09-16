@@ -113,7 +113,7 @@ def checkUser(id):
     curr_inst_uid = getAllPrescenceData()['uid']
     isInstructorPresent = getFacultyPrescenceState()
     guestMode = guestMode_QuestionMark()
-    
+    chime()
     if guestMode:
         sayGuestMode()
         time.sleep(0.5)
@@ -131,7 +131,8 @@ def checkUser(id):
         # 403 -> Not enrolled
         # 404 | 500 -> Not registered
         try:
-            parseUser = getStudentData(uid)
+            parseUser = getStudentData(id)
+            print(parseUser)
             section = parseUser["program"]
             registered = True
         except:
@@ -169,6 +170,8 @@ def checkUser(id):
                   changeLockState("unlock")
                   welcome()
                   return
+                else:
+                    raise Exception(logger.warning("Faculty already present, skipping faculty check"))
             else:
                 parseUser = getFaculty(uid)
                 parseUser["instructor_name"]
@@ -199,7 +202,10 @@ def main():
     # Clear log file on start
     #__schedule.every().hour.at(":00").do(backup)
     __schedule.every(5).minutes.do(backup)
-
+    try:
+        open('pilock.log', 'w').close()
+    except:
+        logger.warning("Error clearing log file!")
     reader = SimpleMFRC522()
     while True:
         try:
@@ -214,7 +220,6 @@ def main():
                 "Card detected! UID: "
                 + str(int(little_endian, 16))
             )
-            chime()
             checkUser(int(little_endian, 16))
         except KeyboardInterrupt:
             GPIO.cleanup()

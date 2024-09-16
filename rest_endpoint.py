@@ -21,13 +21,13 @@ def endpoint():
         remotelyUnlocked()
         chime()
         print("Door unlocked successfully")
+        _data = getAllPrescenceData()
         try:
             try:
-                changeFacultyPrescenceState()
-                _data = getAllPrescenceData()
+                changeFacultyPrescenceState(str(_data['uid']).zfill(10))
                 requests.post('https://www.pilocksystem.live/api/attendinst/' + str(_data['uid']).zfill(10), timeout=2)
             except Exception as e:
-                changeFacultyPrescenceState()
+                changeFacultyPrescenceState(str(_data['uid']).zfill(10))
         except:
             pass
         return json.dumps({"success": True}), 201
