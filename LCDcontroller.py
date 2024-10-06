@@ -18,6 +18,7 @@ person_to_greet = ""
 remote_unlock = False
 isLCDconnected = False
 justSayWelcome = False
+noNFC = False
 
 def lcdScreenController():
     global isUnauthorizedWarningUp
@@ -32,6 +33,7 @@ def lcdScreenController():
     global remote_unlock
     global isOverGracePeriod
     global justSayWelcome
+    global noNFC
     
     try:
         from RPLCD.i2c import CharLCD
@@ -60,6 +62,7 @@ def lcdScreenController():
                 and not remote_unlock
                 and not isOverGracePeriod
                 and not justSayWelcome
+                and not noNFC
             ):
                 try:
                     sched_data = currentSchedule()
@@ -170,6 +173,15 @@ def lcdScreenController():
                 time.sleep(1.5)
                 justSayWelcome = False
                 returnToDefaultMsg = True
+            elif noNFC:
+                returnToDefaultMsg = False
+                lcd.clear()
+                lcd.write_string("Please connect the")
+                lcd.cursor_pos = (1,0)
+                lcd.write_string("NFC reader!")
+                time.sleep(1.5)
+                noNFC = False
+                returnToDefaultMsg = True
             else:
                 time.sleep(1)
         except Exception:
@@ -216,3 +228,7 @@ def showLate():
 def welcome():
     global justSayWelcome
     justSayWelcome = True
+    
+def noReader():
+    global noNFC
+    noNFC = True

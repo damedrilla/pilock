@@ -1,5 +1,5 @@
 import RPi.GPIO as GPIO
-from mfrc522 import SimpleMFRC522
+from py122u import nfc
 import requests
 import schedule as __schedule
 import json
@@ -18,7 +18,8 @@ from LCDcontroller import (
     greetUser,
     showRegisteredButOutsideOfSchedule,
     showLate,
-    welcome
+    welcome,
+    noReader
 )
 from backup import backup
 from getStudentData import getStudentData
@@ -45,7 +46,8 @@ logging.basicConfig(filename="pilock.log", encoding="utf-8", level=logging.INFO)
 coloredlogs.install(level="DEBUG", logger=logger)
 
 BASE_API_URL = "https://www.pilocksystem.live/api/"
-
+readerConnected = False
+reader = ""
 
 # Reminder: Calling change lock state methods should always be the first
 # operation if the user satisfies the authentication algorithms
@@ -119,6 +121,7 @@ def checkUser(id):
     if guestMode:
         sayGuestMode()
         time.sleep(0.5)
+        logger.debug("Guest mode is enabled!")
         return
 
     if uid == 274065971:
@@ -200,31 +203,57 @@ def runscheduled():
         __schedule.run_pending()
         time.sleep(1)
 
-
+def checkReader():
+    global reader
+    global readerConnected
+    while True:
+        try:
+            reader = nfc.Reader()
+            readerConnected = True
+            time.sleep(1)
+        except Exception as e:
+            noReader()
+            logger.warning("Please attach the NFC reader!")
+            readerConnected = False
+            time.sleep(1)
+            
 def main():
     # Clear log file on start
     #__schedule.every().hour.at(":00").do(backup)
     # __schedule.every(5).minutes.do(backup)
+    global readerConnected
     __schedule.every(5).seconds.do(esse_sync)
     try:
         open('pilock.log', 'w').close()
     except:
         logger.warning("Error clearing log file!")
-    reader = SimpleMFRC522()
+    
     while True:
         try:
-            logger.info("Waiting for an ID...")
-            cardData = reader.read_id()
-            cardDataInHex = f"{cardData:x}"
-            minusMfgID = cardDataInHex[:-2]
-            big_endian = bytearray.fromhex(str(minusMfgID))
-            big_endian.reverse()
-            little_endian = "".join(f"{n:02X}" for n in big_endian)
-            logger.info(
-                "Card detected! UID: "
-                + str(int(little_endian, 16))
-            )
-            checkUser(int(little_endian, 16))
+            while True:
+                cardPresent = False
+                uid = ""
+                uid_parsed = "0x"
+                if not readerConnected:
+                    time.sleep(1)
+                else:
+                    try:
+                        reader.connect()
+                        uid = reader.get_uid()
+                        uid = uid[::-1]
+                        for _byte in range(len(uid)):
+                            uid_parsed += "".join(f'{uid[_byte]:x}')
+                        cardPresent = True
+                    except Exception as e:
+                        pass
+                    if cardPresent:
+                        logger.info(
+                            "Card detected! UID: "
+                            + str(int(uid_parsed, 0))
+                        )
+                        checkUser(int(uid_parsed, 0))
+                    else:
+                        pass
         except KeyboardInterrupt:
             GPIO.cleanup()
         except:
@@ -251,6 +280,7 @@ rest_endpoint_thread = Thread(target=endpoint)
 inst_prescence_tracker_thread = Thread(target=tracker)
 exit_listener_thread = Thread(target=exitListener)
 openvpn_thread = Thread(target=connectionSwitcher)
+nfc_checker = Thread(target=checkReader)
 
 main_thread.start()
 lcd_thread.start()
@@ -260,3 +290,4 @@ exit_listener_thread.start()
 openvpn_thread.start()
 tts_thread.start()
 rest_endpoint_thread.start()
+nfc_checker.start()
