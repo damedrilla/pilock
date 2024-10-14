@@ -40,13 +40,40 @@ def getAllPrescenceData():
         pres = {"uid": "", "time_in": "", "time_end": "", "isInstructorPresent": ""}
         con = sqlite3.connect('allowed_students.db', isolation_level=None)
         cur = con.cursor()
-        cur.execute('select uid, time_in, time_end, isInstructorPresent from inst_prescence where rowid = 1')
+        cur.execute('select uid, time_in, time_end, isInstructorPresent, latecheck, grace_period from inst_prescence where rowid = 1')
         row = cur.fetchone()
-        pres['uid'] = row[0]; pres['time_in'] = row[1]; pres['time_end'] = row[2]; pres['isInstructorPresent'] = row[3]
+        pres['uid'] = row[0]; pres['time_in'] = row[1]; pres['time_end'] = row[2]; pres['isInstructorPresent'] = row[3]; pres['latecheck'] = row[4]
+        pres['grace_period']= row[5]
         con.close()
         return pres
     except:
         return {"uid": "", "time_in": "", "time_end": "", "isInstructorPresent": 0}
+
+def getLateCheck():
+    try:
+        pres = {"uid": "", "time_in": "", "time_end": "", "isInstructorPresent": ""}
+        con = sqlite3.connect('allowed_students.db', isolation_level=None)
+        cur = con.cursor()
+        cur.execute('select latecheck, from inst_prescence where rowid = 1')
+        row = cur.fetchone()
+        latecheck =  row[0]
+        con.close()
+        return latecheck
+    except:
+        return 0
+    
+def getGP():
+    try:
+        pres = {"uid": "", "time_in": "", "time_end": "", "isInstructorPresent": ""}
+        con = sqlite3.connect('allowed_students.db', isolation_level=None)
+        cur = con.cursor()
+        cur.execute('select grace_period, from inst_prescence where rowid = 1')
+        row = cur.fetchone()
+        graceperiod =  row[0]
+        con.close()
+        return graceperiod
+    except:
+        return 0
 
 def isStudentAllowedToEnter(uid):
     try:
@@ -62,4 +89,9 @@ def isStudentAllowedToEnter(uid):
             return False
     except:
         return False
-    
+
+def resetState():
+    con = sqlite3.connect('allowed_students.db', isolation_level=None)
+    cur = con.cursor()
+    cur.execute("update inst_prescence set isInstructorPresent = 0, time_end = 0")
+    con.close()

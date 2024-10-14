@@ -36,7 +36,7 @@ from guestModeTracker import guestMode_QuestionMark
 from facIsPresentTracker import tracker
 from exitEventListener import exitListener
 from openvpn import connectionSwitcher
-from facPrescenceController import changeFacultyPrescenceState, getFacultyPrescenceState, getAllPrescenceData
+from facPrescenceController import changeFacultyPrescenceState, getFacultyPrescenceState, getAllPrescenceData, resetState
 from essential_data_sync import esse_sync
 import sqlite3
 import datetime
@@ -124,10 +124,11 @@ def checkUser(id):
         logger.debug("Guest mode is enabled!")
         return
 
-    if uid == 274065971:
-        changeLockState("unlock")
-        logger.debug("Master key detected!")
-        return
+    # if uid == "0274065971":
+    #     resetState()
+    #     changeLockState("unlock")
+    #     logger.debug("Master key detected!")
+    #     return
 
     try:
         # Return codes
@@ -145,8 +146,8 @@ def checkUser(id):
         print(can_they_enter)
         if can_they_enter == 200:
             changeLockState("unlock")
-            welcomeUser(parseUser["name"])
-            greetUser(parseUser["name"])
+            welcomeUser(parseUser["first_name"])
+            greetUser(parseUser["first_name"])
         elif can_they_enter == 401:
             changeLockState("lock")
             showNoFacultyYet(section)
@@ -178,7 +179,7 @@ def checkUser(id):
                     raise Exception(logger.warning("Faculty already present, skipping faculty check"))
             else:
                 parseUser = getFaculty(uid)
-                parseUser["instructor_name"]
+                name = parseUser["instructor_fname"] + " " +parseUser['instructor_lname']
                 isInstructor = True
                 logger.debug("ID holder is a faculty!")
         except Exception as e:
@@ -188,7 +189,7 @@ def checkUser(id):
             showUnauthorized()
 
     if isInstructor:
-        isFacultysTimeNow(parseUser["instructor_name"], uid)
+        isFacultysTimeNow(name, uid)
         print("--- %s seconds ---" % (time.time() - start_time))
     else:
         print("--- %s seconds ---" % (time.time() - start_time))
@@ -239,6 +240,7 @@ def main():
                 else:
                     try:
                         reader.connect()
+                        reader.mute_buzzer()
                         uid = reader.get_uid()
                         uid = uid[::-1]
                         for _byte in range(len(uid)):

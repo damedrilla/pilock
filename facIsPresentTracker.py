@@ -20,7 +20,7 @@ def getFacUID(name):
             inst = json.loads(instructor_list.text)
             for instr in range(len(inst["instructors"])):
                 try:
-                    inst_name = inst["instructors"][instr]["instructor_name"]
+                    inst_name = inst["instructors"][instr]["instructor_fname"] + " " + inst["instructors"][instr]["instructor_lname"]
                     # print(uid_no_lead)
                     if str(name) == str(inst_name):
                         return inst["instructors"][instr]["tag_uid"]
@@ -34,7 +34,7 @@ def getFacUID(name):
             inst = json.load(faculty_bak)
             for instr in range(len(inst["instructors"])):
                 try:
-                    inst_name = inst["instructors"][instr]["instructor_name"]
+                    inst_name = inst["instructors"][instr]["instructor_fname"] + " " + inst["instructors"][instr]["instructor_lname"]
                     # print(uid_no_lead)
                     if str(name) == str(inst_name):
                         return inst["instructors"][instr]["tag_uid"]
@@ -51,10 +51,18 @@ def tracker():
         reg_time = re.compile(r'^([0-1]?\d|2[0-3])(?::([0-5]?\d))?(?::([0-5]?\d))?$')
         try:
             state = getAllPrescenceData()
+            latecheck = 0
+            graceperiod = 0
             _end = state["time_end"]
             curr_sched = currentSchedule()
             if curr_sched["code"] == 200:
                 curr_sched_end = curr_sched["time_end"]
+                if curr_sched['lateDuration'] is None:
+                    latecheck = 0
+                    graceperiod = 0
+                else:
+                    latecheck = 1
+                    graceperiod = curr_sched['lateDuration']
                 faculty_uid = getFacUID(str(curr_sched["instructor"]))
                 isCurrentScheduleOver = timeCheck(
                     "", "", "", time_end=_end, currTime=current_time
@@ -77,8 +85,8 @@ def tracker():
                     cur = con.cursor()
                     statement = "delete from authorized"
                     cur.execute(statement)
-                    params = (curr_sched_end, faculty_uid, 1)
-                    cur.execute("update inst_prescence set time_end = ?, isInstructorPresent = 0, uid = ?, time_in = '' where rowid = ?", params)
+                    params = (curr_sched_end, faculty_uid,latecheck, graceperiod, 1)
+                    cur.execute("update inst_prescence set time_end = ?, isInstructorPresent = 0, uid = ?, time_in = '', latecheck = ?, grace_period = ? where rowid = ?", params)
                     con.close()
                     time.sleep(1)
         except Exception as e:

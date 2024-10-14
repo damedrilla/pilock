@@ -48,7 +48,7 @@ def esse_sync():
                     ecs_bak = requests.get(BASE_API_URL + "instructors", timeout=2)
                     with open("backup_data/temp_faculty.json", "w") as f:
                         json.dump(ecs_bak.json(), f)
-                    logger.info("EDS: Fetched latest data from students for backup.")
+                    logger.info("EDS: Fetched latest data from faculty for backup.")
                     faculty_bak_is_successful = True
                     if faculty_bak_is_successful:
                         with open('backup_data/temp_faculty.json', "r")as fr, open('backup_data/faculty.json', "w") as to:
