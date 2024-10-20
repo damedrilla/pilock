@@ -5,7 +5,9 @@ from getCourseID import getCourseID
 from facPrescenceController import (
     getFacultyPrescenceState,
     getAllPrescenceData,
+    getGP,
     isStudentAllowedToEnter,
+    getLateCheck
 )
 from timecheck import isBludNotLate
 from getStudentData import getStudentData
@@ -110,7 +112,7 @@ def getStudent(uid):
                                         .replace(microsecond=0)
                                     )
                                     is_student_on_time = isBludNotLate(
-                                        curr_time, fac_all_data["time_in"]
+                                        curr_time, fac_all_data["time_in"], 120
                                     )
                                     if is_student_on_time:
                                         try:
@@ -156,7 +158,20 @@ def checkIfAuthorized(uid):
         if fac_all_data['isInstructorPresent'] == 0:
             return 401
         curr_time = str(datetime.datetime.now().time().replace(microsecond=0))
-        if isBludNotLate(curr_time, fac_all_data["time_in"]):
+        if getLateCheck() == 1:
+            if isBludNotLate(curr_time, fac_all_data["time_in"], getGP()):
+                try:
+                    con = sqlite3.connect("allowed_students.db", isolation_level=None)
+                    cur = con.cursor()
+                    param = (uid,)
+                    cur.execute("insert into authorized values (?)", param)
+                    con.close()
+                except:
+                    pass
+                return 200
+            else:
+                return 399
+        else:
             try:
                 con = sqlite3.connect("allowed_students.db", isolation_level=None)
                 cur = con.cursor()
@@ -166,5 +181,3 @@ def checkIfAuthorized(uid):
             except:
                 pass
             return 200
-        else:
-            return 399

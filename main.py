@@ -124,11 +124,11 @@ def checkUser(id):
         logger.debug("Guest mode is enabled!")
         return
 
-    # if uid == "0274065971":
-    #     resetState()
-    #     changeLockState("unlock")
-    #     logger.debug("Master key detected!")
-    #     return
+    if uid == "0274065971":
+        resetState()
+        changeLockState("unlock")
+        logger.debug("Master key detected!")
+        return
 
     try:
         # Return codes
@@ -140,8 +140,8 @@ def checkUser(id):
             parseUser = getStudentData(id)
             section = parseUser["program"]
             registered = True
-        except:
-            raise Exception(logger.warning("Skipping student check"))
+        except Exception as e:
+            raise Exception(logger.warning(e))
         can_they_enter = getStudent(uid)
         print(can_they_enter)
         if can_they_enter == 200:
@@ -234,15 +234,16 @@ def main():
             while True:
                 cardPresent = False
                 uid = ""
-                uid_parsed = "0x"
+                uid_parsed = ""
+                raw_uid = []
                 if not readerConnected:
                     time.sleep(1)
                 else:
                     try:
                         reader.connect()
                         reader.mute_buzzer()
-                        uid = reader.get_uid()
-                        uid = uid[::-1]
+                        raw_uid = reader.get_uid()
+                        uid = raw_uid[::-1]
                         for _byte in range(len(uid)):
                             uid_parsed += "".join(f'{uid[_byte]:x}')
                         cardPresent = True
@@ -251,9 +252,9 @@ def main():
                     if cardPresent:
                         logger.info(
                             "Card detected! UID: "
-                            + str(int(uid_parsed, 0))
+                            + str(int(uid_parsed, 16)) + " HEX: " + str(uid_parsed)
                         )
-                        checkUser(int(uid_parsed, 0))
+                        checkUser(int(uid_parsed, 16))
                     else:
                         pass
         except KeyboardInterrupt:

@@ -27,8 +27,10 @@ def endpoint():
                 changeFacultyPrescenceState(str(_data['uid']).zfill(10))
                 requests.post('https://www.pilocksystem.live/api/attendinst/' + str(_data['uid']).zfill(10), timeout=2)
             except Exception as e:
+                print(e)
                 changeFacultyPrescenceState(str(_data['uid']).zfill(10))
-        except:
+        except Exception as e:
+            print(e)
             pass
         return json.dumps({"success": True}), 201
 

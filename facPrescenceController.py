@@ -54,7 +54,7 @@ def getLateCheck():
         pres = {"uid": "", "time_in": "", "time_end": "", "isInstructorPresent": ""}
         con = sqlite3.connect('allowed_students.db', isolation_level=None)
         cur = con.cursor()
-        cur.execute('select latecheck, from inst_prescence where rowid = 1')
+        cur.execute('select latecheck from inst_prescence where rowid = 1')
         row = cur.fetchone()
         latecheck =  row[0]
         con.close()
@@ -67,12 +67,25 @@ def getGP():
         pres = {"uid": "", "time_in": "", "time_end": "", "isInstructorPresent": ""}
         con = sqlite3.connect('allowed_students.db', isolation_level=None)
         cur = con.cursor()
-        cur.execute('select grace_period, from inst_prescence where rowid = 1')
+        cur.execute('select grace_period from inst_prescence where rowid = 1')
         row = cur.fetchone()
         graceperiod =  row[0]
         con.close()
         return graceperiod
-    except:
+    except Exception as e:
+        return 0
+    
+def getAtt():
+    try:
+        pres = {"uid": "", "time_in": "", "time_end": "", "isInstructorPresent": ""}
+        con = sqlite3.connect('allowed_students.db', isolation_level=None)
+        cur = con.cursor()
+        cur.execute('select isInstructorPresent from inst_prescence where rowid = 1')
+        row = cur.fetchone()
+        present =  row[0]
+        con.close()
+        return present
+    except Exception as e:
         return 0
 
 def isStudentAllowedToEnter(uid):

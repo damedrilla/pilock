@@ -12,7 +12,7 @@ def exitListener():
         uid = input('Waiting')
         changeLockState('unlock')
         try:
-            requests.post('https://www.pilocksystem.live/api/exitstudent/'+str(uid).zfill(10), timeout=2)
+            requests.post('https://www.pilocksystem.live/api/exitStudFac/'+str(uid).zfill(10), timeout=2)
         except:
             pass
         chime()

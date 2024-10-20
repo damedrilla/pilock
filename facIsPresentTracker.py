@@ -3,7 +3,7 @@ from internetCheck import isInternetUp, localMode
 from timecheck import timeCheck
 from datetime import datetime
 from internetCheck import isInternetUp
-from facPrescenceController import getAllPrescenceData
+from facPrescenceController import getAllPrescenceData, getAtt
 import sqlite3
 import requests
 import json
@@ -91,11 +91,4 @@ def tracker():
                     time.sleep(1)
         except Exception as e:
             print(e)
-            con = sqlite3.connect('allowed_students.db', isolation_level=None)
-            cur = con.cursor()
-            statement = "delete from authorized"
-            cur.execute(statement)
-            params = ("", "", 1)
-            cur.execute("update inst_prescence set time_end = ?, isInstructorPresent = 0, uid = ?, time_in = '' where rowid = ?", params)
-            con.close()
             time.sleep(1)
