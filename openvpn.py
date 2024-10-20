@@ -1,10 +1,18 @@
 import os
-from internetCheck import isInternetUp
 from threading import Thread
+import time
+import urllib.request
 import time
 
 connect_to_vpn = False
 
+def isInternetUp():
+    try:    
+        cloud_status = urllib.request.urlopen("http://152.42.167.108/", timeout=2).getcode()
+        if cloud_status == 200:
+            return False
+    except Exception:
+            return True
 
 def startConnection():
     while True:
@@ -21,10 +29,6 @@ def startConnection():
             )
         else:
             time.sleep(1)
-
-
-startConThread = Thread(target=startConnection)
-startConThread.start()
 
 
 def connectionSwitcher():
@@ -44,3 +48,8 @@ def connectionSwitcher():
             isConnected = False
         else:
             time.sleep(1)
+
+startConThread = Thread(target=startConnection)
+switcher_thread = Thread(target=connectionSwitcher)
+startConThread.start()
+switcher_thread.start()
