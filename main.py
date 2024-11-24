@@ -45,7 +45,7 @@ logger = logging.getLogger(__name__)
 logging.basicConfig(filename="pilock.log", encoding="utf-8", level=logging.INFO)
 coloredlogs.install(level="DEBUG", logger=logger)
 
-BASE_API_URL = "https://www.pilocksystem.live/api/"
+BASE_API_URL = "https://pilocksystem.live/api/"
 readerConnected = False
 reader = ""
 
@@ -179,7 +179,7 @@ def checkUser(id):
                     raise Exception(logger.warning("Faculty already present, skipping faculty check"))
             else:
                 parseUser = getFaculty(uid)
-                name = parseUser["instructor_fname"] + " " +parseUser['instructor_lname']
+                name = parseUser["faculty_fname"] + " " +parseUser['faculty_lname']
                 isInstructor = True
                 logger.debug("ID holder is a faculty!")
         except Exception as e:

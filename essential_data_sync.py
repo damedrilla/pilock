@@ -9,7 +9,7 @@ import time
 
 def esse_sync():
     localMode = False
-    BASE_API_URL = "https://www.pilocksystem.live/api/"
+    BASE_API_URL = "https://pilocksystem.live/api/"
     if not localMode:
         enrolled_courses_bak_is_successful = False
         student_bak_is_successful = False
@@ -45,7 +45,7 @@ def esse_sync():
                     logger.critical("EDS: Blank response. Students data might be empty!")
             if not faculty_bak_is_successful:
                 try:
-                    ecs_bak = requests.get(BASE_API_URL + "instructors", timeout=2)
+                    ecs_bak = requests.get(BASE_API_URL + "faculties", timeout=2)
                     with open("backup_data/temp_faculty.json", "w") as f:
                         json.dump(ecs_bak.json(), f)
                     logger.info("EDS: Fetched latest data from faculty for backup.")
